@@ -1,8 +1,178 @@
-<html>
-  <head>
-    
-  </head>
-  <body>
-    Тут пока что нечего нету....
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBBY GAMES</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf Ru.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf En.ttf') format('truetype');
+}
+</style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'KBF', sans-serif;
+}
+@keyframes moveBG {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+}
+body {
+    background: #000;
+    color: #fff;
+    padding: 40px 20px;
+    background-image: url("bbg.png");
+    background-repeat: repeat;
+    background-size: 100px;
+    animation: moveBG 30s linear infinite alternate;
+}
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
+    z-index: -1;
+}
+.logo {
+    display: block;
+    margin: 0 auto 35px;
+    width: 500px;
+    filter: drop-shadow(0 0 22px rgba(255,255,255,0.8));
+    animation: logoFloat 4s ease-in-out infinite, logoGlow 3.5s ease-in-out infinite;
+}
+@keyframes logoFloat {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0); }
+}
+@keyframes logoGlow {
+    0% { filter: drop-shadow(0 0 18px rgba(255,255,255,0.55)); }
+    50% { filter: drop-shadow(0 0 28px rgba(255,255,255,0.6)); }
+    100% { filter: drop-shadow(0 0 18px rgba(255,255,255,0.55)); }
+}
+.section-title {
+    font-size: 34px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #fff;
+    letter-spacing: 2px;
+}
+.grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+}
+.card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+}
+.card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+.card-title { 
+    font-size: 22px;
+}
+.game-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: 180px;
+    margin: 0 auto;
+    border-radius: 16px;
+    background-image: url("bg.png");
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid rgba(255,255,255,0.25);
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    transition: 0.35s ease;
+}
+.game-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    transition: 0.35s ease;
+}
+.game-card:hover::before {
+    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.15);
+}
+.game-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: #fff;
+    box-shadow: 0 0 18px rgba(255,255,255,0.5);
+}
+.game-img {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 55%;
+    width: auto;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.9));
+    transition: 0.35s ease;
+}
+.game-card:hover .game-img {
+    transform: translateY(-50%) scale(1.03);
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.8));
+}
+</style>
+</head>
+<body>
+
+<img src="Logo.png" class="logo">
+<h2 class="section-title">Наши соцсети</h2>
+
+<div class="grid">
+    <a href="https://youtube.com/@kubbysgames" class="card" target="_blank">
+        <img src="Youtube.png">
+        <div class="card-title">YouTube</div>
+    </a>
+    <a href="https://t.me/kubbygames" class="card" target="_blank">
+        <img src="Telegram.png">
+        <div class="card-title">Telegram</div>
+    </a>
+    <a href="https://discord.gg/gMf5Dw3ruV" class="card" target="_blank">
+        <img src="Discord.png">
+        <div class="card-title">Discord</div>
+    </a>
+</div>
+
+<br><br><br><br>
+<h2 class="section-title">Наши игры</h2>
+<a href="https://kubby-games.github.io/games/kba.html" class="game-card" target="_blank">
+    <img src="Game.png" class="game-img">
+</a>
+</body>
 </html>
