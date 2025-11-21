@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kubby-games.github.io/sitemap.xml
