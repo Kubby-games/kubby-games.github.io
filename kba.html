@@ -99,6 +99,56 @@ body::after {
 .card-title { 
     font-size: 22px;
 }
+
+.player {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(4px);
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.player button {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+.player button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.08);
+}
+
+#seek {
+    flex: 1;
+    height: 8px;
+    cursor: pointer;
+    appearance: none;
+    background: rgba(255,255,255,0.25);
+    border-radius: 4px;
+    outline: none;
+}
+#seek::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+}
 </style>
 </head>
 <body>
@@ -123,6 +173,88 @@ body::after {
         <div class="card-title">ANDROID</div>
     </a>
 </div>
+<h2 class="section-title">Послушать Саундтреки:</h2>
 
+<div class="players">
+    <div class="player">
+        <audio id="track1" src="music1.mp3"></audio>
+        <div class="player-controls">
+            <button id="play1">▶</button>
+            <button id="pause1">⏸</button>
+            <input type="range" id="seek1" value="0">
+        </div>
+    </div>
+
+    <div class="player">
+        <audio id="track2" src="music2.m4a"></audio>
+        <div class="player-controls">
+            <button id="play2">▶</button>
+            <button id="pause2">⏸</button>
+            <input type="range" id="seek2" value="0">
+        </div>
+    </div>
+
+    <div class="player">
+        <audio id="track3" src="music3.m4a"></audio>
+        <div class="player-controls">
+            <button id="play3">▶</button>
+            <button id="pause3">⏸</button>
+            <input type="range" id="seek3" value="0">
+        </div>
+    </div>
+
+    <div class="player">
+        <audio id="track4" src="music4.m4a"></audio>
+        <div class="player-controls">
+            <button id="play4">▶</button>
+            <button id="pause4">⏸</button>
+            <input type="range" id="seek4" value="0">
+        </div>
+    </div>
+
+    <div class="player">
+        <audio id="track5" src="music5.m4a"></audio>
+        <div class="player-controls">
+            <button id="play5">▶</button>
+            <button id="pause5">⏸</button>
+            <input type="range" id="seek5" value="0">
+        </div>
+    </div>
+
+    <div class="player">
+        <audio id="track6" src="music6.m4a"></audio>
+        <div class="player-controls">
+            <button id="play6">▶</button>
+            <button id="pause6">⏸</button>
+            <input type="range" id="seek6" value="0">
+        </div>
+    </div>
+</div>
+
+<script>
+function initPlayer(num) {
+    const audio = document.getElementById(`track${num}`);
+    const playBtn = document.getElementById(`play${num}`);
+    const pauseBtn = document.getElementById(`pause${num}`);
+    const seek = document.getElementById(`seek${num}`);
+
+    playBtn.onclick = () => audio.play();
+    pauseBtn.onclick = () => audio.pause();
+
+    audio.addEventListener("loadedmetadata", () => {
+        seek.max = audio.duration;
+    });
+
+    audio.addEventListener("timeupdate", () => {
+        seek.value = audio.currentTime;
+    });
+
+    seek.oninput = () => {
+        audio.currentTime = seek.value;
+    };
+}
+
+for (let i = 1; i <= 6; i++) initPlayer(i);
+</script>
 </body>
 </html>
