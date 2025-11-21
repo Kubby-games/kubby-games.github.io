@@ -50,10 +50,11 @@ body::after {
 .logo {
     display: block;
     margin: 0 auto 35px;
-    width: 500px;
-    filter: drop-shadow(0 0 22px rgba(255,255,255,0.8));
-    animation: logoFloat 4s ease-in-out infinite, logoGlow 3.5s ease-in-out infinite;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
 }
+
 @keyframes logoFloat {
     0% { transform: translateY(0); }
     50% { transform: translateY(-4px); }
@@ -138,16 +139,19 @@ body::after {
     border-color: #fff;
     box-shadow: 0 0 18px rgba(255,255,255,0.5);
 }
+    
 .game-img {
     position: absolute;
-    left: 20px;
+    left: 3%;
     top: 50%;
     transform: translateY(-50%);
-    height: 55%;
-    width: auto;
+    width: 120vw;
+    max-width: 330px;
+    height: auto;
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.9));
     transition: 0.35s ease;
 }
+
 .game-card:hover .game-img {
     transform: translateY(-50%) scale(1.03);
     filter: drop-shadow(0 0 14px rgba(255,255,255,0.8));
@@ -181,5 +185,6 @@ body::after {
 </a>
 </body>
 </html>
+
 
 
