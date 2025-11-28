@@ -1,4 +1,3 @@
-
 @font-face {
     font-family: 'KBF';
     src: url('Kbf Ru.ttf') format('truetype');
@@ -9,11 +8,17 @@
 }
 
 
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'KBF', sans-serif;
+}
+
+@keyframes moveBG {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
 }
 
 body {
@@ -26,11 +31,6 @@ body {
     animation: moveBG 30s linear infinite alternate;
 }
 
-@keyframes moveBG {
-    0% { background-position: 0 0; }
-    100% { background-position: 100% 100%; }
-}
-
 body::after {
     content: "";
     position: fixed;
@@ -39,7 +39,8 @@ body::after {
     z-index: -1;
 }
 
-/
+
+
 .logo {
     display: block;
     margin: 0 auto 35px;
@@ -49,6 +50,7 @@ body::after {
 }
 
 
+
 .section-title {
     font-size: 34px;
     margin-bottom: 18px;
@@ -56,6 +58,7 @@ body::after {
     color: #fff;
     letter-spacing: 2px;
 }
+
 
 
 .grid {
@@ -86,7 +89,13 @@ body::after {
     border-color: #fff;
 }
 
-.card-title {
+.card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.card-title { 
     font-size: 22px;
 }
 
@@ -118,6 +127,7 @@ body::after {
     backdrop-filter: blur(4px);
     transition: 0.35s ease;
 }
+
 .game-card:hover::before {
     backdrop-filter: blur(8px);
     background: rgba(0,0,0,0.15);
@@ -179,66 +189,4 @@ body::after {
 .staff-info a {
     color: #fff;
     text-decoration: none;
-}
-
-
-.player {
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto 25px;
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
-    border-radius: 14px;
-    border: 2px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(4px);
-}
-
-.player-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.player button {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 2px solid rgba(255,255,255,0.3);
-    color: #fff;
-    font-size: 22px;
-    cursor: pointer;
-    transition: 0.25s;
-}
-
-.player button:hover {
-    background: rgba(255,255,255,0.3);
-    transform: scale(1.08);
-}
-
-.player input[type="range"] {
-    flex: 1;
-    height: 8px;
-    cursor: pointer;
-    appearance: none;
-    background: rgba(255,255,255,0.25);
-    border-radius: 4px;
-    outline: none;
-}
-
-.player input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #fff;
-}
-
-
-.track-title {
-    font-size: 22px;
-    text-align: center;
-    margin-bottom: 10px;
-    color: #fff;
-    letter-spacing: 1px;
 }
