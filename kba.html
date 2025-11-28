@@ -6,167 +6,7 @@
 <title>KUBBY BIG ADVENTURE</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 
-<style>
-@font-face {
-    font-family: 'KBF';
-    src: url('Kbf Ru.ttf') format('truetype');
-}
-@font-face {
-    font-family: 'KBF';
-    src: url('Kbf En.ttf') format('truetype');
-}
-</style>
-
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'KBF', sans-serif;
-}
-
-/* BG animation */
-@keyframes moveBG {
-    0% { background-position: 0 0; }
-    100% { background-position: 100% 100%; }
-}
-
-body {
-    background: #000;
-    color: #fff;
-    padding: 40px 20px;
-    background-image: url("bbg.png");
-    background-repeat: repeat;
-    background-size: 100px;
-    animation: moveBG 30s linear infinite alternate;
-}
-
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
-    z-index: -1;
-}
-
-.logo {
-    display: block;
-    margin: 0 auto 35px;
-    width: 100%;
-    max-width: 420px;
-    height: auto;
-}
-@keyframes logoFloat {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-    100% { transform: translateY(0); }
-}
-@keyframes logoGlow {
-    0% { filter: drop-shadow(0 0 18px rgba(255,255,255,0.55)); }
-    50% { filter: drop-shadow(0 0 28px rgba(255,255,255,0.6)); }
-    100% { filter: drop-shadow(0 0 18px rgba(255,255,255,0.55)); }
-}
-
-/* GRID */
-.section-title {
-    font-size: 34px;
-    margin-bottom: 18px;
-    text-align: center;
-    color: #fff;
-    letter-spacing: 2px;
-}
-
-.grid {
-    max-width: 900px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 18px;
-}
-
-.card {
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.2);
-    padding: 16px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    transition: 0.2s;
-    backdrop-filter: blur(4px);
-}
-.card:hover {
-    transform: translateY(-4px);
-    background: rgba(255,255,255,0.15);
-    border-color: #fff;
-}
-.card-title {
-    font-size: 22px;
-}
-
-
-.player {
-    width: 100%;
-    max-width: 700px;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.05);
-    padding: 20px;
-    border-radius: 14px;
-    border: 2px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(4px);
-}
-
-.player-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.player button {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
-    border: 2px solid rgba(255,255,255,0.3);
-    color: #fff;
-    font-size: 22px;
-    cursor: pointer;
-    transition: 0.25s;
-}
-.player button:hover {
-    background: rgba(255,255,255,0.3);
-    transform: scale(1.08);
-}
-
-#seek {
-    flex: 1;
-    height: 8px;
-    cursor: pointer;
-    appearance: none;
-    background: rgba(255,255,255,0.25);
-    border-radius: 4px;
-    outline: none;
-}
-#seek::-webkit-slider-thumb {
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #fff;
-}
-
-
-.track-title {
-    font-size: 22px;
-    text-align: center;
-    margin-bottom: 10px;
-    color: #fff;
-    letter-spacing: 1px;
-}
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -176,19 +16,19 @@ body::after {
 <h2 class="section-title">Скачать KUBBY BIG ADVENTURE на..</h2>
 
 <div class="grid">
-    <a href="https://drive.google.com/file/d/1vApynfwjmI_nllVyOCWyqDu2STBu4P32/view?usp=drive_link" class="card" target="_blank">
+    <a href="https://drive.google.com/file/d/1vApynfwjmI_nllVyOCWyqDu2STBu4P32/view" class="card" target="_blank">
         <div class="card-title">WINDOWS 64x</div>
     </a>
-    <a href="https://drive.google.com/file/d/1q7g222gKLC4exzw-lY9TaupMnH9aMFyI/view?usp=drive_link" class="card" target="_blank">
+    <a href="https://drive.google.com/file/d/1q7g222gKLC4exzw-lY9TaupMnH9aMFyI/view" class="card" target="_blank">
         <div class="card-title">WINDOWS 32x</div>
     </a>
-    <a href="https://drive.google.com/file/d/12M4OV0V6A-g-dsNtp5wCMk29NjKZgzsK/view?usp=drive_link" class="card" target="_blank">
+    <a href="https://drive.google.com/file/d/12M4OV0V6A-g-dsNtp5wCMk29NjKZgzsK/view" class="card" target="_blank">
         <div class="card-title">LINUX</div>
     </a>
-    <a href="https://drive.google.com/file/d/1dhcLiv-9TzTosBoto-CTFvZHG6QNLBSB/view?usp=drive_link" class="card" target="_blank">
+    <a href="https://drive.google.com/file/d/1dhcLiv-9TzTosBoto-CTFvZHG6QNLBSB/view" class="card" target="_blank">
         <div class="card-title">Mac</div>
     </a>
-    <a href="https://drive.google.com/file/d/1e60FkstBjT-NRZ2AihY25WmaQtGdIUAR/view?usp=drive_link" class="card" target="_blank">
+    <a href="https://drive.google.com/file/d/1e60FkstBjT-NRZ2AihY25WmaQtGdIUAR/view" class="card" target="_blank">
         <div class="card-title">ANDROID</div>
     </a>
 </div>
@@ -198,10 +38,9 @@ body::after {
 <h2 class="section-title">Послушать Саундтреки:</h2>
 
 <div class="players">
-    <!-- Player 1 -->
-    <div class="player">
-	<div class="track-title">Forest meeting</div>
 
+    <div class="player">
+        <div class="track-title">Forest meeting</div>
         <audio id="track1" src="https://kubby-games.github.io/music1.mp3"></audio>
         <div class="player-controls">
             <button id="play1">PLAY</button>
@@ -210,10 +49,8 @@ body::after {
         </div>
     </div>
 
-    <!-- Player 2 -->
     <div class="player">
-	<div class="track-title">Forest meeting (remake)</div>
-
+        <div class="track-title">Forest meeting (remake)</div>
         <audio id="track2" src="https://kubby-games.github.io/music2.m4a"></audio>
         <div class="player-controls">
             <button id="play2">PLAY</button>
@@ -222,11 +59,8 @@ body::after {
         </div>
     </div>
 
-    <!-- Player 3 -->
-
     <div class="player">
-	<div class="track-title">NICE DAY TO DISAPPEAR</div>
-
+        <div class="track-title">NICE DAY TO DISAPPEAR</div>
         <audio id="track3" src="https://kubby-games.github.io/music3.m4a"></audio>
         <div class="player-controls">
             <button id="play3">PLAY</button>
@@ -235,10 +69,8 @@ body::after {
         </div>
     </div>
 
-    <!-- Player 4 -->
     <div class="player">
-	<div class="track-title">Burn the forest (remastered)</div>
-
+        <div class="track-title">Burn the forest (remastered)</div>
         <audio id="track4" src="https://kubby-games.github.io/music4.m4a"></audio>
         <div class="player-controls">
             <button id="play4">PLAY</button>
@@ -247,10 +79,8 @@ body::after {
         </div>
     </div>
 
-    <!-- Player 5 -->
     <div class="player">
-	<div class="track-title">CRACKED DESCENT</div>
-
+        <div class="track-title">CRACKED DESCENT</div>
         <audio id="track5" src="https://kubby-games.github.io/music5.m4a"></audio>
         <div class="player-controls">
             <button id="play5">PLAY</button>
@@ -259,10 +89,8 @@ body::after {
         </div>
     </div>
 
-    <!-- Player 6 -->
     <div class="player">
-	<div class="track-title">Have a nice day!</div>
-
+        <div class="track-title">Have a nice day!</div>
         <audio id="track6" src="https://kubby-games.github.io/music6.m4a"></audio>
         <div class="player-controls">
             <button id="play6">PLAY</button>
@@ -270,6 +98,7 @@ body::after {
             <input type="range" id="seek6" value="0">
         </div>
     </div>
+
 </div>
 
 <script>
@@ -297,7 +126,6 @@ function initPlayer(num) {
 
 for (let i = 1; i <= 6; i++) initPlayer(i);
 </script>
-
 
 </body>
 </html>
