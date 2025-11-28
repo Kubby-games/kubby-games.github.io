@@ -156,6 +156,29 @@ body::after {
     transform: translateY(-50%) scale(1.03);
     filter: drop-shadow(0 0 14px rgba(255,255,255,0.8));
 }
+
+
+a[href*="youtube.com"]::before {
+    background-image: url("Youtube.png");
+}
+a[href*="t.me"]::before,
+a[href*="telegram"]::before {
+    background-image: url("Telegram.png");
+}
+a[href*="discord"]::before {
+    background-image: url("Discord.png");
+}
+
+a.card::before {
+    content: "";
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 14px;
+}
+
 </style>
 </head>
 <body>
@@ -191,6 +214,7 @@ body::after {
 -->
 </body>
 </html>
+
 
 
 
