@@ -216,7 +216,7 @@ body::after {
     transform: scale(1.08);
 }
 
-input[type="range"] {
+.player input[type="range"] {
     flex: 1;
     height: 8px;
     cursor: pointer;
@@ -226,13 +226,14 @@ input[type="range"] {
     outline: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+.player input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     background: #fff;
 }
+
 
 .track-title {
     font-size: 22px;
