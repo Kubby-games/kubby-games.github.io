@@ -1,1 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBBY GAMES</title>
+
+<meta name="description" content="Замена старому сайту">
+<meta name="keywords" content="Kubby Games, Kubby Games Website, Official Kubby Games, Games, Studio, кубби геймс">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+
+<style>
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf Ru.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf En.ttf') format('truetype');
+}
+</style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'KBF', sans-serif;
+}
+@keyframes moveBG {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+}
+body {
+    background: #000;
+    color: #fff;
+    padding: 40px 20px;
+    background-image: url("bbg.png");
+    background-repeat: repeat;
+    background-size: 100px;
+    animation: moveBG 30s linear infinite alternate;
+}
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
+    z-index: -1;
+}
+.logo {
+    display: block;
+    margin: 0 auto 35px;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+}
+
+.section-title {
+    font-size: 34px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+}
+.card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+}
+.card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.card-title { 
+    font-size: 22px;
+}
+
+
+
+.staff-card {
+    max-width: 900px;
+    margin: 0 auto 20px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    gap: 18px;
+    backdrop-filter: blur(4px);
+}
+
+.staff-card img {
+    width: 95px;
+    height: 95px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.staff-name {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.staff-info {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.staff-info a {
+    color: #fff;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<img src="Logo.png" class="logo">
+<br><br>
+<h2 class="section-title">Наш Персонал:</h2>
+
+<div class="staff-card">
+    <img src="windows.jpg">
+    <div>
+        <div class="staff-name"><b>Виндус</b></div>
+
+        <div class="staff-info"><b>Роль:</b> Основатель, Геймдизайнер, Художник,главный директор</div>
+        <div class="staff-info"><b>Год создание кубби геймс:</b> 2024</div>
+        <div class="staff-info"><b>Начала разработки игры:</b> 2021</div>
+        <div class="staff-info">
+            <b>Телеграм</b>
+            <a href="https://t.me/Windowsplintus2011" target="_blank"> @Windowsplintus2011</a>
+        </div>
+        <div class="staff-info">
+            <b>Описание:</b> основатель и руководитель Kubby Games июнь 2024, отвечающий за концепцию, дизайн и управление проектами, сохранивший студию после полного развала команды в июле 2025 году и сформировавший новый состав разработчиков..
+        </div>
+    </div>
+</div>
+
+<div class="staff-card">
+    <img src="luan.jpg">
+    <div>
+        <div class="staff-name"><b>.Luan</b></div>
+
+        <div class="staff-info"><b>Роль:</b> Разработчик этого сайта, Главный долбоёб</div>
+        <div class="staff-info"><b>Вступил в команду:</b> 2025</div>
+        <div class="staff-info"><b>Уход:</b> Ещё не уходил</div>
+        <div class="staff-info">
+            <b>Личный сайт:</b>
+            <a href="https://byteflopp.github.io/" target="_blank"> byteflop.github.io</a>
+        </div>
+
+        <div class="staff-info">
+            <b>Описание:</b> Привет я себя зову Шлёпа, Я делаю эту вкладку.
+        </div>
+    </div>
+</div>
+
+<div class="staff-card">
+    <img src="Limpus.jpg">
+    <div>
+        <div class="staff-name"><b>Limpus</b></div>
+
+        <div class="staff-info"><b>Роль:</b> Пока что нету информацие.</div>
+        <div class="staff-info"><b>Вступил в команду:</b> Пока что нету информацие.</div>
+        <div class="staff-info"><b>Уход:</b> Ещё не уходил</div>
+        <div class="staff-info">
+            <b>Телеграм:</b>
+            <a href="https://t.me/MrLimpus" target="_blank"> @MrLimpus</a>
+        </div>
+
+        <div class="staff-info">
+            <b>Описание:</b> Пока что нету информацие.
+        </div>
+    </div>
+</div>
+
+    
+<div class="staff-card">
+    <img src="maxunderwolf.jpg">
+    <div>
+        <div class="staff-name"><b>maxwelkwolf</b></div>
+
+        <div class="staff-info"><b>Роль:</b> Ведущий программист</div>
+        <div class="staff-info"><b>Вступил в команду:</b> Август 2025</div>
+        <div class="staff-info"><b>Уход:</b> Ещё не уходил</div>
+        <div class="staff-info">
+            <b>Телеграм:</b>
+            <a href="https://t.me/maxunderwolf" target="_blank"> @maxunderwolf</a>
+        </div>
+
+        <div class="staff-info">
+            <b>Описание:</b> Программист команды Kubby Games с августа 2025. Переписал игру с нуля после потери исходного кода, реализовал ключевые системы и механику.
+        </div>
+    </div>
+</div>
+<br>
+<a href="https://kubby-games.github.io/" class="card" target="_blank">
+  <div class="card-title">На главную страницу</div>
+</a>
+
+</body>
+</html>
 
