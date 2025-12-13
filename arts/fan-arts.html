@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Галерея Фан-Артов - KUBBY GAMES</title>
+
+<meta name="description" content="Галерея артов Kubby Games">
+<meta name="keywords" content="Kubby Games, галерея, арты, art, .luan">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+
+<style>
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf Ru.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf En.ttf') format('truetype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'KBF', sans-serif;
+}
+
+@keyframes moveBG {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+}
+
+body {
+    background: #000;
+    color: #fff;
+    padding: 40px 20px;
+    background-image: url("https://kubby-games.github.io/bbg.png");
+    background-repeat: repeat;
+    background-size: 100px;
+    animation: moveBG 30s linear infinite alternate;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
+    z-index: -1;
+}
+
+.section-title {
+    font-size: 34px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+}
+.card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+}
+.card img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.card-title { 
+    font-size: 22px;
+    text-align: center;
+}
+
+.card-text {
+    font-size: 16px;
+    color: #cccccc;
+    text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+<h2 class="section-title">Галерея Фан-Артов</h2>
+
+<div class="grid">
+    <div class="card">
+        <img src="https://kubby-games.github.io/arts/Kubban.png" alt="Планета Куббянчик">
+        <div class="card-title">Планета Куббянчик</div>
+        <div class="card-text">Автор: .luan</div>
+        <div class="card-text">Тип: Нарисованый</div>
+    </div>
+    <div class="card">
+        <img src="https://kubby-games.github.io/arts/KubbyGrass.jpg" alt="Планета Куббянчик">
+        <div class="card-title">Кубби чилит на травке</div>
+        <div class="card-text">Автор: .luan</div>
+        <div class="card-text">Тип: 3D рендер</div>
+    </div>
+</div>
+
+</body>
+</html>
