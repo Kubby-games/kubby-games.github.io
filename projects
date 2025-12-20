@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KUBBY GAMES</title>
+
+<meta name="description" content="Замена старому сайту">
+<meta name="keywords" content="Kubby Games, Kubby Games Website, Official Kubby Games, Games, Studio, кубби геймс">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+
+<style>
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf Ru.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'KBF';
+    src: url('Kbf En.ttf') format('truetype');
+}
+</style>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'KBF', sans-serif;
+}
+@keyframes moveBG {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+}
+body {
+    background: #000;
+    color: #fff;
+    padding: 40px 20px;
+    background-image: url("bbg.png");
+    background-repeat: repeat;
+    background-size: 100px;
+    animation: moveBG 30s linear infinite alternate;
+}
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
+    z-index: -1;
+}
+.logo {
+    display: block;
+    margin: 0 auto 35px;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+}
+
+.section-title {
+    font-size: 34px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+.grid {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 16px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+}
+.card:hover {
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.15);
+    border-color: #fff;
+}
+.card img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.card-title { 
+    font-size: 22px;
+}
+
+.game-card {
+    position: relative;
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: 180px;
+    margin: 0 auto;
+    border-radius: 16px;
+    background-image: url("bg.png");
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid rgba(255,255,255,0.25);
+    box-shadow: 0 0 15px rgba(0,0,0,0.8);
+    transition: 0.35s ease;
+}
+
+.game-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    transition: 0.35s ease;
+}
+.game-card:hover::before {
+    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.15);
+}
+.game-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: #fff;
+    box-shadow: 0 0 18px rgba(255,255,255,0.5);
+}
+
+.game-img {
+    position: absolute;
+    left: 3%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 120vw;
+    max-width: 330px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.9));
+    transition: 0.35s ease;
+}
+
+.game-card:hover .game-img {
+    transform: translateY(-50%) scale(1.03);
+    filter: drop-shadow(0 0 14px rgba(255,255,255,0.8));
+}
+
+</style>
+</head>
+<body>
+
+<h1 class="logo">ФАНАТСКИЕ/ОФИЦИАЛЬНЫЕ ПРОЕКТЫ</h1><br><br>
+
+<h2 class="section-title">Luan Engine (python)</h2>
+
+<div class="grid">
+    <a href="https://kubby-games.github.io/engine.py" class="card" target="_blank">
+        <img src="Luha.png">
+        <div class="card-title">YouTube</div>
+    </a>
+</div>
+
+
+</body>
+</html>
+
+
