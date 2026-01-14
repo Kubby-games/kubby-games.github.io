@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GameBoy Emulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gb-bg: #9bbc0f;
+      --gb-pixel-light: #8bac0f;
+      --gb-pixel-dark: #306230;
+      --gb-pixel-black: #0f380f;
+      --case-color: #c0c0c0;
+      --btn-a-color: #8f192b;
+      --dpad-color: #1a1a1a;
+      --body-bg: #121212;
+    }
+
+    * { box-sizing: border-box; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      background-color: var(--body-bg);
+      color: #eee;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .gameboy {
+      width: 340px;
+      height: 580px;
+      background-color: var(--case-color);
+      border-radius: 15px 15px 45px 15px;
+      position: relative;
+      box-shadow: 
+        inset 5px 5px 10px rgba(255,255,255,0.4),
+        inset -5px -5px 15px rgba(0,0,0,0.2),
+        0 20px 50px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
+    }
+
+    .screen-lens {
+      width: 280px;
+      height: 220px;
+      background-color: #555;
+      border-radius: 15px 15px 40px 15px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+
+    .power-led {
+      position: absolute;
+      top: 40%; left: 10px;
+      width: 8px; height: 8px;
+      background-color: #400;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    .power-led.on {
+      background-color: #f00;
+      box-shadow: 0 0 8px #f00, inset 1px 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .lcd-container {
+      width: 200px;
+      height: 180px;
+      background-color: var(--gb-bg);
+      border: 4px solid #4a4a4a;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 3px 3px 8px rgba(0,0,0,0.3);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    .controls { width: 100%; height: 280px; position: relative; }
+
+    .dpad { position: absolute; top: 30px; left: 30px; width: 90px; height: 90px; }
+    .dpad-h { position: absolute; top: 30px; left: 0; width: 90px; height: 30px; background: var(--dpad-color); border-radius: 4px; }
+    .dpad-v { position: absolute; top: 0; left: 30px; width: 30px; height: 90px; background: var(--dpad-color); border-radius: 4px; }
+    
+    .dpad-btn { position: absolute; width: 30px; height: 30px; cursor: pointer; z-index: 5; }
+    .btn-up { top: 0; left: 30px; }
+    .btn-down { bottom: 0; left: 30px; }
+    .btn-left { top: 30px; left: 0; }
+    .btn-right { top: 30px; right: 0; }
+    
+    .dpad::after {
+      content: ''; position: absolute; top: 35px; left: 35px; width: 20px; height: 20px;
+      background: radial-gradient(#2a2a2a, #111); border-radius: 50%; pointer-events: none; z-index: 6;
+    }
+    
+    .dpad-btn:active, .dpad-btn.active { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .actions {
+      position: absolute; top: 40px; right: 20px;
+      width: 120px; height: 70px;
+      transform: rotate(-25deg);
+    }
+    .round-btn {
+      width: 40px; height: 40px;
+      background-color: var(--btn-a-color);
+      border-radius: 50%;
+      position: absolute;
+      box-shadow: 2px 3px 5px rgba(0,0,0,0.5);
+      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      transition: transform 0.05s;
+    }
+    .round-btn:active, .round-btn.active {
+      transform: scale(0.95) translate(1px, 1px);
+      box-shadow: inset 2px 2px 5px rgba(0,0,0,0.6);
+    }
+    .btn-a { bottom: 0; right: 0; }
+    .btn-b { top: 0; left: 0; }
+    
+    .label {
+      position: absolute; font-family: sans-serif; font-weight: bold; font-size: 14px;
+      color: #306230; bottom: -20px; right: 5px; pointer-events: none;
+    }
+
+    .options {
+      position: absolute; bottom: 80px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 15px;
+    }
+    .pill-btn {
+      width: 55px; height: 14px;
+      background: #666; border-radius: 10px;
+      transform: rotate(-25deg);
+      border: 1px solid rgba(0,0,0,0.2);
+      box-shadow: 1px 2px 4px rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+    .pill-btn:active, .pill-btn.active { background: #444; box-shadow: inset 1px 1px 3px #000; }
+    .opt-label {
+      font-family: sans-serif; font-size: 9px; color: #306230;
+      margin-top: 8px; text-align: center; transform: rotate(-25deg);
+      font-weight: bold; letter-spacing: 0.5px;
+    }
+
+    .speaker {
+      position: absolute; bottom: 25px; right: 30px;
+      transform: rotate(-25deg);
+    }
+    .hole {
+      width: 70px; height: 6px; background: rgba(0,0,0,0.1);
+      margin-bottom: 5px; border-radius: 3px; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+    }
+    
+    #fileInput { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="gameboy">
+    <div class="screen-lens">
+      <div class="power-led on"></div>
+      <div class="lcd-container">
+        <canvas id="gameCanvas" width="160" height="144"></canvas>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="dpad">
+        <div class="dpad-h"></div>
+        <div class="dpad-v"></div>
+        <div class="dpad-btn btn-up" id="btn-up"></div>
+        <div class="dpad-btn btn-right" id="btn-right"></div>
+        <div class="dpad-btn btn-down" id="btn-down"></div>
+        <div class="dpad-btn btn-left" id="btn-left"></div>
+      </div>
+
+      <div class="actions">
+        <div class="round-btn btn-b" id="btn-b"><div class="label">B</div></div>
+        <div class="round-btn btn-a" id="btn-a"><div class="label">A</div></div>
+      </div>
+
+      <div class="options">
+        <div>
+          <div class="pill-btn" id="btn-select"></div>
+          <div class="opt-label">SELECT</div>
+        </div>
+        <div>
+          <div class="pill-btn" id="btn-start"></div>
+          <div class="opt-label">START</div>
+        </div>
+      </div>
+
+      <div class="speaker">
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+        <div class="hole"></div><div class="hole"></div><div class="hole"></div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".txt">
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const ghostCanvas = document.createElement('canvas');
+    ghostCanvas.width = 160;
+    ghostCanvas.height = 144;
+    const ghostCtx = ghostCanvas.getContext('2d');
+
+    const PALETTE = {
+      white: '#9bbc0f', 
+      light: '#8bac0f',
+      dark:  '#306230',
+      black: '#0f380f'
+    };
+
+    function saveSettings() {
+      localStorage.setItem('gb_volume', GLOBAL_VOLUME);
+      localStorage.setItem('gb_control_type', CURRENT_CONTROL_TYPE);
+    }
+
+    function loadSettings() {
+      const vol = localStorage.getItem('gb_volume');
+      if(vol !== null) GLOBAL_VOLUME = parseFloat(vol);
+      const cType = localStorage.getItem('gb_control_type');
+      if(cType !== null) CURRENT_CONTROL_TYPE = cType;
+    }
+
+    let GLOBAL_VOLUME = 0.5;
+    let CURRENT_CONTROL_TYPE = 'KEYBOARD'; 
+    let GLOBAL_MUSIC_CACHE = []; 
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playTone(freq, type='square', duration=0.1) {
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      if(GLOBAL_VOLUME <= 0) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05 * GLOBAL_VOLUME, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playNoise(duration=0.1) {
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      if(GLOBAL_VOLUME <= 0) return;
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.05 * GLOBAL_VOLUME, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      noise.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+    }
+
+    const input = { up: false, down: false, left: false, right: false, a: false, b: false, start: false, select: false };
+    
+    let keyMap = { 
+        'w':'up', 'a':'left', 's':'down', 'd':'right', 
+        'q':'a', 'e':'b', 'p':'start', 'f':'select',
+        'arrowup':'up', 'arrowdown':'down', 'arrowleft':'left', 'arrowright':'right', 
+        'enter':'start', ' ':'a', 'shift':'select' 
+    };
+
+    const btnIdMap = { 'btn-up':'up', 'btn-down':'down', 'btn-left':'left', 'btn-right':'right',
+                       'btn-a':'a', 'btn-b':'b', 'btn-start':'start', 'btn-select':'select' };
+
+    let isRebinding = false;
+    let actionToBind = null;
+
+    function handleInput(action, pressed) {
+      if (input[action] === pressed) return;
+      input[action] = pressed;
+      
+      const ids = Object.keys(btnIdMap).filter(k => btnIdMap[k] === action);
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (pressed) el.classList.add('active'); else el.classList.remove('active');
+      });
+
+      if (pressed) {
+        if (system.activeGame) {
+            system.activeGame.onKeyPress(action);
+        } else {
+            system.menuInput(action);
+        }
+      }
+    }
+
+    document.addEventListener('keydown', e => { 
+        if(CURRENT_CONTROL_TYPE !== 'KEYBOARD' && CURRENT_CONTROL_TYPE !== 'CONTROLLER') return; 
+
+        if (isRebinding) {
+            e.preventDefault();
+            const newKey = e.key.toLowerCase();
+            if (keyMap[newKey]) delete keyMap[newKey];
+            keyMap[newKey] = actionToBind;
+            isRebinding = false;
+            actionToBind = null;
+            playTone(400, 'square', 0.1);
+            return;
+        }
+
+        if (keyMap[e.key.toLowerCase()]) {
+            handleInput(keyMap[e.key.toLowerCase()], true); 
+        }
+    });
+
+    document.addEventListener('keyup', e => { 
+        if (keyMap[e.key.toLowerCase()]) handleInput(keyMap[e.key.toLowerCase()], false); 
+    });
+
+    Object.keys(btnIdMap).forEach(id => {
+      const el = document.getElementById(id);
+      const action = btnIdMap[id];
+      el.addEventListener('mousedown', (e) => { e.preventDefault(); handleInput(action, true); });
+      el.addEventListener('mouseup', (e) => { e.preventDefault(); handleInput(action, false); });
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(action, true); });
+      el.addEventListener('touchend', (e) => { e.preventDefault(); handleInput(action, false); });
+    });
+
+    function pollGamepad() {
+        if (CURRENT_CONTROL_TYPE !== 'CONTROLLER') return;
+        const gamepads = navigator.getGamepads();
+        if (!gamepads[0]) return;
+        const gp = gamepads[0];
+        handleInput('up', gp.axes[1] < -0.5 || gp.buttons[12].pressed);
+        handleInput('down', gp.axes[1] > 0.5 || gp.buttons[13].pressed);
+        handleInput('left', gp.axes[0] < -0.5 || gp.buttons[14].pressed);
+        handleInput('right', gp.axes[0] > 0.5 || gp.buttons[15].pressed);
+        handleInput('a', gp.buttons[0].pressed);
+        handleInput('b', gp.buttons[1].pressed);
+        handleInput('start', gp.buttons[9].pressed);
+        handleInput('select', gp.buttons[8].pressed);
+    }
+
+    class System {
+      constructor() {
+        this.state = 'MENU';
+        this.activeGame = null;
+        this.menuIndex = 0;
+        
+        this.rootStructure = [
+          { id: 'settings', title: 'SETTINGS' },
+          { 
+             title: 'GAMES', 
+             type: 'folder', 
+             children: [
+                { id: 'dash', title: 'GEOMETRY DASH' },
+                { id: 'tetris', title: 'TETRIS' },
+                { id: 'snake', title: 'SNAKE' },
+                { id: 'mines', title: 'MINESWEEPER' },
+                { id: 'shooter', title: 'SPACE SHOOTER' }
+             ]
+          },
+          { 
+             title: 'APPS', 
+             type: 'folder', 
+             children: [
+                { id: 'music', title: 'MUSIC MAKER' },
+                { id: 'calc', title: 'CALCULATOR' }
+             ]
+          }
+        ];
+        
+        this.currentFolder = this.rootStructure;
+        this.folderStack = [];
+        this.breadcrumbs = ["MAIN MENU"];
+      }
+
+      start() { 
+        loadSettings();
+        requestAnimationFrame(t => this.loop(t)); 
+      }
+
+      stopGame() {
+        this.activeGame = null;
+        this.state = 'MENU';
+        Object.keys(input).forEach(k => input[k] = false);
+        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        ctx.fillStyle = PALETTE.white;
+        ctx.fillRect(0,0,160,144);
+      }
+
+      menuInput(action) {
+        if (action === 'up') {
+          this.menuIndex = (this.menuIndex - 1 + this.currentFolder.length) % this.currentFolder.length;
+          playTone(200, 'square', 0.05);
+        }
+        if (action === 'down') {
+          this.menuIndex = (this.menuIndex + 1) % this.currentFolder.length;
+          playTone(200, 'square', 0.05);
+        }
+        
+        if (action === 'b') {
+            if (this.folderStack.length > 0) {
+                this.currentFolder = this.folderStack.pop();
+                this.breadcrumbs.pop();
+                this.menuIndex = 0;
+                playTone(150, 'square', 0.1);
+            }
+        }
+
+        if (action === 'a' || action === 'start') {
+          const item = this.currentFolder[this.menuIndex];
+          
+          if (item.type === 'folder') {
+              this.folderStack.push(this.currentFolder);
+              this.currentFolder = item.children;
+              this.breadcrumbs.push(item.title);
+              this.menuIndex = 0;
+              playTone(300, 'square', 0.1);
+          } else {
+              const gameId = item.id;
+              playTone(400, 'square', 0.2);
+              
+              if (gameId === 'tetris') this.activeGame = new TetrisGame();
+              if (gameId === 'calc') this.activeGame = new CalculatorGame();
+              if (gameId === 'snake') this.activeGame = new SnakeGame();
+              if (gameId === 'mines') this.activeGame = new MinesweeperGame();
+              if (gameId === 'dash') this.activeGame = new GeometryDashGame();
+              if (gameId === 'settings') this.activeGame = new SettingsGame();
+              if (gameId === 'shooter') this.activeGame = new SpaceShooterGame();
+              if (gameId === 'music') this.activeGame = new MusicMakerApp();
+              
+              if (this.activeGame) {
+                this.activeGame.init();
+                this.state = 'GAME';
+              }
+          }
+        }
+      }
+
+      loop(timestamp) {
+        pollGamepad();
+        ghostCtx.drawImage(canvas, 0, 0);
+        ctx.fillStyle = PALETTE.white;
+        ctx.fillRect(0, 0, 160, 144);
+
+        if (this.state === 'MENU') {
+          this.renderMenu();
+        } else if (this.state === 'GAME' && this.activeGame) {
+          this.activeGame.update();
+          this.activeGame.render();
+        }
+
+        ctx.save();
+        ctx.globalAlpha = 0.3; 
+        ctx.drawImage(ghostCanvas, 0, 0);
+        ctx.restore();
+        requestAnimationFrame(t => this.loop(t));
+      }
+
+      renderMenu() {
+        ctx.fillStyle = PALETTE.black;
+        ctx.fillRect(0, 0, 160, 20);
+        ctx.fillStyle = PALETTE.white;
+        ctx.font = '8px "Press Start 2P"';
+        let title = this.breadcrumbs[this.breadcrumbs.length - 1];
+        ctx.fillText(title, 10, 14);
+
+        this.currentFolder.forEach((item, idx) => {
+          const y = 35 + idx * 16;
+          let prefix = item.type === 'folder' ? "[+] " : "";
+          
+          if (idx === this.menuIndex) {
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillRect(10, y - 8, 140, 12);
+            ctx.fillStyle = PALETTE.white;
+            ctx.fillText("> " + prefix + item.title, 15, y);
+          } else {
+            ctx.fillStyle = PALETTE.dark;
+            ctx.fillText("  " + prefix + item.title, 15, y);
+          }
+        });
+      }
+    }
+
+    class MusicMakerApp {
+        constructor() {
+            this.notes = GLOBAL_MUSIC_CACHE;
+            this.playIndex = -1;
+            this.isPlaying = false;
+            this.lastPlayTime = 0;
+            this.tempo = 300; 
+            
+            this.keys = [
+                { lbl: 'C', freq: 261.63 },
+                { lbl: 'D', freq: 293.66 },
+                { lbl: 'E', freq: 329.63 },
+                { lbl: 'F', freq: 349.23 },
+                { lbl: 'G', freq: 392.00 },
+                { lbl: 'A', freq: 440.00 },
+                { lbl: 'B', freq: 493.88 },
+                { lbl: 'C2', freq: 523.25 }
+            ];
+            this.selectedKey = 0;
+            this.menuOpen = false;
+            this.menuOptions = ['DEL LAST', 'CLEAR ALL', 'EXPORT TXT', 'IMPORT TXT'];
+            this.menuIdx = 0;
+        }
+
+        init() {
+            if(GLOBAL_MUSIC_CACHE.length > 0 && this.notes.length === 0) {
+               this.notes = [...GLOBAL_MUSIC_CACHE];
+            }
+            this.isPlaying = false;
+            this.playIndex = -1;
+        }
+
+        onKeyPress(key) {
+            if (this.menuOpen) {
+                if(key === 'up') { this.menuIdx = (this.menuIdx - 1 + 4) % 4; playTone(200,'square',0.05); }
+                if(key === 'down') { this.menuIdx = (this.menuIdx + 1) % 4; playTone(200,'square',0.05); }
+                if(key === 'select' || key === 'b') { this.menuOpen = false; playTone(150,'square',0.05); }
+                if(key === 'a' || key === 'start') {
+                    this.executeMenu();
+                    playTone(400,'square',0.1);
+                    if (this.menuIdx < 2) this.menuOpen = false; 
+                }
+                return;
+            }
+
+            if (key === 'left') {
+                this.selectedKey = (this.selectedKey - 1 + this.keys.length) % this.keys.length;
+                playTone(this.keys[this.selectedKey].freq, 'triangle', 0.05);
+            }
+            if (key === 'right') {
+                this.selectedKey = (this.selectedKey + 1) % this.keys.length;
+                playTone(this.keys[this.selectedKey].freq, 'triangle', 0.05);
+            }
+            if (key === 'a') {
+                if(this.notes.length < 100) {
+                    this.notes.push(this.keys[this.selectedKey]);
+                    GLOBAL_MUSIC_CACHE = this.notes; 
+                    playTone(this.keys[this.selectedKey].freq, 'square', 0.1);
+                }
+            }
+            if (key === 'b') {
+                system.stopGame();
+            }
+            if (key === 'start') {
+                this.isPlaying = !this.isPlaying;
+                this.playIndex = -1;
+                this.lastPlayTime = 0;
+            }
+            if (key === 'select') {
+                this.menuOpen = true;
+                this.isPlaying = false;
+            }
+        }
+
+        executeMenu() {
+            if(this.menuIdx === 0) { 
+                if(this.notes.length > 0) this.notes.pop();
+                GLOBAL_MUSIC_CACHE = this.notes;
+            }
+            if(this.menuIdx === 1) { 
+                this.notes = [];
+                GLOBAL_MUSIC_CACHE = this.notes;
+            }
+            if(this.menuIdx === 2) { 
+                const data = JSON.stringify(this.notes.map(n => n.lbl)); 
+                const blob = new Blob([data], {type: 'text/plain'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'gb_song.txt';
+                a.click();
+                URL.revokeObjectURL(url);
+                this.menuOpen = false;
+            }
+            if(this.menuIdx === 3) { 
+                const fileInput = document.getElementById('fileInput');
+                fileInput.value = '';
+                fileInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        try {
+                            const arr = JSON.parse(evt.target.result);
+                            if(Array.isArray(arr)) {
+                                this.notes = [];
+                                arr.forEach(lbl => {
+                                    const k = this.keys.find(key => key.lbl === lbl);
+                                    if(k) this.notes.push(k);
+                                });
+                                GLOBAL_MUSIC_CACHE = this.notes;
+                            }
+                        } catch(err) { alert("Invalid file"); }
+                        this.menuOpen = false;
+                    };
+                    reader.readAsText(file);
+                };
+                fileInput.click();
+            }
+        }
+
+        update() {
+            if (this.isPlaying && this.notes.length > 0) {
+                const now = Date.now();
+                if (now - this.lastPlayTime > this.tempo) {
+                    this.playIndex++;
+                    if (this.playIndex >= this.notes.length) {
+                        this.playIndex = 0; 
+                    }
+                    const note = this.notes[this.playIndex];
+                    playTone(note.freq, 'square', 0.2);
+                    this.lastPlayTime = now;
+                }
+            }
+        }
+
+        render() {
+            ctx.fillStyle = PALETTE.white;
+            ctx.fillRect(0, 0, 160, 144);
+            
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillRect(0,0,160,15);
+            ctx.fillStyle = PALETTE.white;
+            ctx.font = '8px "Press Start 2P"';
+            ctx.fillText(this.isPlaying ? "PLAYING..." : "MUSIC MAKER", 40, 10);
+
+            ctx.fillStyle = PALETTE.light;
+            ctx.fillRect(0, 15, 160, 80); 
+            ctx.strokeStyle = PALETTE.dark;
+            ctx.beginPath();
+            ctx.moveTo(0, 95); ctx.lineTo(160, 95); ctx.stroke();
+            
+            ctx.fillStyle = PALETTE.black;
+            ctx.font = '10px monospace';
+            
+            const drawNotes = this.notes.slice(Math.max(0, this.notes.length - 40)); 
+            
+            this.notes.forEach((n, i) => {
+                let renderX = (i % 16) * 10 + 5;
+                let renderY = 30 + Math.floor(i / 16) * 12;
+
+                if (renderY > 90) return; 
+
+                if (i === this.playIndex && this.isPlaying) {
+                    ctx.fillStyle = PALETTE.white;
+                    ctx.fillRect(renderX-1, renderY-9, 10, 10);
+                    ctx.fillStyle = PALETTE.black;
+                }
+                ctx.fillText(n.lbl.replace('2',''), renderX, renderY);
+            });
+
+            const keyWidth = 18;
+            const startX = 8;
+            const keyY = 100;
+            const keyHeight = 35; 
+
+            this.keys.forEach((k, i) => {
+                let bx = startX + i * keyWidth;
+                
+                if (i === this.selectedKey) {
+                    ctx.fillStyle = PALETTE.dark; 
+                    ctx.fillRect(bx, keyY + 5, keyWidth, keyHeight - 5); 
+                } else {
+                    ctx.fillStyle = PALETTE.white;
+                    ctx.fillRect(bx, keyY, keyWidth, keyHeight);
+                    ctx.fillStyle = PALETTE.light;
+                    ctx.fillRect(bx + 2, keyY + keyHeight - 5, keyWidth - 4, 5);
+                }
+                
+                ctx.strokeStyle = PALETTE.black;
+                ctx.strokeRect(bx, keyY, keyWidth, keyHeight);
+
+                ctx.fillStyle = PALETTE.black;
+                ctx.font = '8px monospace';
+                ctx.fillText(k.lbl, bx + 4, keyY + 25);
+            });
+
+            ctx.fillStyle = PALETTE.dark;
+            ctx.font = '8px monospace';
+            ctx.fillText("SEL:Menu START:Play A:Add", 10, 142);
+
+            if (this.menuOpen) {
+                ctx.fillStyle = 'rgba(155, 188, 15, 0.9)';
+                ctx.fillRect(30, 30, 100, 80);
+                ctx.strokeStyle = PALETTE.black;
+                ctx.strokeRect(30, 30, 100, 80);
+                
+                ctx.fillStyle = PALETTE.black;
+                ctx.font = '8px "Press Start 2P"';
+                this.menuOptions.forEach((opt, i) => {
+                    if (i === this.menuIdx) ctx.fillText("> " + opt, 35, 50 + i*15);
+                    else ctx.fillText("  " + opt, 35, 50 + i*15);
+                });
+            }
+        }
+    }
+
+    class SettingsGame {
+        constructor() {
+            this.mode = 'MAIN'; 
+            this.mainItems = ['CONTROLS', 'VOLUME', 'EXIT'];
+            this.mainIdx = 0;
+            
+            this.controlTypes = ['KEYBOARD', 'CONTROLLER', 'MOBILE'];
+            this.controlTypeIdx = 0;
+            
+            this.bindItems = ['UP', 'DOWN', 'LEFT', 'RIGHT', 'A', 'B', 'BACK'];
+            this.bindIdx = -1; 
+        }
+
+        init() { 
+            this.mode = 'MAIN';
+            this.controlTypeIdx = this.controlTypes.indexOf(CURRENT_CONTROL_TYPE);
+            if(this.controlTypeIdx < 0) this.controlTypeIdx = 0;
+            this.bindIdx = -1; 
+        }
+
+        onKeyPress(key) {
+            if (isRebinding) return;
+
+            if (this.mode === 'MAIN') {
+                if (key === 'up') { this.mainIdx = (this.mainIdx - 1 + 3) % 3; playTone(200,'square',0.05); }
+                if (key === 'down') { this.mainIdx = (this.mainIdx + 1) % 3; playTone(200,'square',0.05); }
+                if (key === 'a' || key === 'start') {
+                    if (this.mainIdx === 0) {
+                        this.mode = 'CONTROL_SELECT';
+                        this.bindIdx = -1;
+                    }
+                    if (this.mainIdx === 1) this.mode = 'VOLUME';
+                    if (this.mainIdx === 2) system.stopGame();
+                    playTone(400,'square',0.1);
+                }
+                if (key === 'b') system.stopGame();
+            }
+            else if (this.mode === 'CONTROL_SELECT') {
+                if (key === 'left' && this.bindIdx === -1) { 
+                    this.controlTypeIdx = (this.controlTypeIdx - 1 + 3) % 3; 
+                    CURRENT_CONTROL_TYPE = this.controlTypes[this.controlTypeIdx];
+                    saveSettings(); 
+                    playTone(200,'square',0.05);
+                }
+                if (key === 'right' && this.bindIdx === -1) { 
+                    this.controlTypeIdx = (this.controlTypeIdx + 1) % 3; 
+                    CURRENT_CONTROL_TYPE = this.controlTypes[this.controlTypeIdx];
+                    saveSettings(); 
+                    playTone(200,'square',0.05);
+                }
+
+                if (CURRENT_CONTROL_TYPE === 'KEYBOARD') {
+                    if (key === 'down') {
+                        if (this.bindIdx === -1) this.bindIdx = 0;
+                        else if (this.bindIdx < this.bindItems.length - 1) this.bindIdx++;
+                    }
+                    if (key === 'up') {
+                        if (this.bindIdx > -1) this.bindIdx--;
+                    }
+                }
+
+                if (key === 'b') {
+                    this.mode = 'MAIN'; 
+                    this.bindIdx = -1;
+                    playTone(200,'square',0.1);
+                }
+
+                if (key === 'a') {
+                    if (CURRENT_CONTROL_TYPE === 'KEYBOARD' && this.bindIdx > -1) {
+                        if (this.bindItems[this.bindIdx] === 'BACK') {
+                             this.mode = 'MAIN'; this.bindIdx = -1;
+                        } else {
+                             isRebinding = true;
+                             actionToBind = this.bindItems[this.bindIdx].toLowerCase();
+                             playTone(600,'sine',0.1);
+                        }
+                    }
+                }
+            }
+            else if (this.mode === 'VOLUME') {
+                if (key === 'left') { 
+                    GLOBAL_VOLUME = Math.max(0, GLOBAL_VOLUME - 0.1); 
+                    saveSettings();
+                    playTone(200,'square',0.05); 
+                }
+                if (key === 'right') { 
+                    GLOBAL_VOLUME = Math.min(1, GLOBAL_VOLUME + 0.1); 
+                    saveSettings();
+                    playTone(200,'square',0.05); 
+                }
+                if (key === 'b' || key === 'a') { this.mode = 'MAIN'; playTone(200,'square',0.1); }
+            }
+        }
+
+        update() {}
+
+        render() {
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillRect(0,0,160,20);
+            ctx.fillStyle = PALETTE.white;
+            ctx.fillText("SETTINGS", 50, 14);
+
+            if (this.mode === 'MAIN') {
+                this.mainItems.forEach((item, i) => {
+                    let y = 50 + i * 20;
+                    if (i === this.mainIdx) {
+                        ctx.fillStyle = PALETTE.black; ctx.fillText("> " + item, 30, y);
+                    } else {
+                        ctx.fillStyle = PALETTE.dark; ctx.fillText("  " + item, 30, y);
+                    }
+                });
+            }
+            else if (this.mode === 'VOLUME') {
+                ctx.fillStyle = PALETTE.black;
+                ctx.fillText("VOLUME", 30, 50);
+                
+                ctx.fillStyle = PALETTE.light;
+                ctx.fillRect(30, 70, 100, 10);
+                ctx.strokeStyle = PALETTE.black;
+                ctx.strokeRect(30, 70, 100, 10);
+                
+                ctx.fillStyle = PALETTE.black;
+                ctx.fillRect(30, 70, 100 * GLOBAL_VOLUME, 10);
+                
+                ctx.fillText(Math.round(GLOBAL_VOLUME * 100) + "%", 70, 95);
+            }
+            else if (this.mode === 'CONTROL_SELECT') {
+                ctx.fillStyle = PALETTE.light;
+                ctx.fillRect(0, 20, 160, 20);
+                ctx.fillStyle = PALETTE.black;
+                
+                let typeName = this.controlTypes[this.controlTypeIdx];
+                ctx.textAlign = 'center';
+                
+                if (this.bindIdx === -1) {
+                    ctx.fillText("< " + typeName + " >", 80, 33);
+                } else {
+                    ctx.fillStyle = PALETTE.dark;
+                    ctx.fillText(typeName, 80, 33);
+                }
+                
+                ctx.textAlign = 'left';
+                ctx.fillStyle = PALETTE.black;
+                let startY = 60;
+
+                if (typeName === 'MOBILE') {
+                    ctx.fillStyle = PALETTE.dark;
+                    ctx.fillText("TOUCH SCREEN", 30, 70);
+                    ctx.fillText("ENABLED", 55, 90);
+                } 
+                else if (typeName === 'CONTROLLER') {
+                     ctx.fillStyle = PALETTE.dark;
+                     ctx.fillText("GAMEPAD DETECTED", 20, 70);
+                     ctx.fillText("STANDARD LAYOUT", 25, 90);
+                }
+                else if (typeName === 'KEYBOARD') {
+                    if (isRebinding) {
+                        ctx.fillStyle = PALETTE.black;
+                        ctx.fillRect(20, 60, 120, 40);
+                        ctx.fillStyle = PALETTE.white;
+                        ctx.textAlign = 'center';
+                        ctx.fillText("PRESS KEY...", 80, 85);
+                        ctx.textAlign = 'left';
+                        return;
+                    }
+
+                    this.bindItems.forEach((action, i) => {
+                        let y = startY + i * 12; 
+                        let isSelected = (i === this.bindIdx);
+                        
+                        let keyName = "???";
+                        if (action === 'BACK') keyName = "";
+                        else {
+                            let keys = Object.keys(keyMap).filter(k => keyMap[k] === action.toLowerCase());
+                            keyName = keys.length > 0 ? keys[0].toUpperCase() : "---";
+                            if (keyName.length > 3) keyName = keyName.substr(0,3);
+                        }
+
+                        if (isSelected) {
+                            ctx.fillStyle = PALETTE.black;
+                            ctx.fillRect(10, y-8, 140, 10);
+                            ctx.fillStyle = PALETTE.white;
+                        } else {
+                            ctx.fillStyle = PALETTE.dark;
+                        }
+                        
+                        ctx.fillText(action, 15, y);
+                        if (action !== 'BACK') ctx.fillText(keyName, 100, y);
+                    });
+                }
+            }
+        }
+    }
+
+    class GeometryDashGame {
+      constructor() {
+        this.player = { x: 30, y: 100, vy: 0, rotation: 0, dead: false, onGround: false };
+        this.gravity = 0.6;
+        this.baseJumpForce = -7.0; 
+        this.jumpForce = -7.0;
+        this.floorY = 120; 
+        this.mode = 'MENU'; 
+        this.gameSpeed = 3.5;
+        this.baseGameSpeed = 3.5;
+        
+        this.levels = [
+          `0000000000000000000000000000000000000000
+000000000000000000300000000001000000003000005
+000000000000000111000003030000000000000000005`, 
+          `00000000000000000000000000000000000000000000000000
+0000000000000000000010000000222200000000000000445
+0000000000000003000000030000000000000011110000005` 
+        ];
+        
+        this.levelIndex = 0;
+        this.blocks = []; 
+        this.cameraX = 0;
+        this.importOptions = ['TEXT', 'FILE', 'CLIPBOARD', 'INSTALL EXAMPLE'];
+        this.importIndex = 3; 
+        
+        this.tutorialLevel = `// GAME SETTINGS
+// player.jump = 8.5
+// player.speed = 4.0
+//
+// BLOCK TYPES:
+// 1: Solid  2: Brick
+// 3: Spike  4: Saw
+// 5: END    6: Cloud
+//
+000000000000000000000000660000000000
+000000000000000000000000000000000005
+000000000040000022200000000000000005
+000010003000000000003030001110004005`;
+      }
+
+      init() { this.mode = 'MENU'; }
+
+      parseLevel(text) {
+        this.jumpForce = this.baseJumpForce;
+        this.gameSpeed = this.baseGameSpeed;
+
+        const rows = text.trim().split('\n');
+        const parsedBlocks = [];
+        const cleanRows = [];
+        
+        rows.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('//')) {
+                if(trimmed.includes('player.jump')) {
+                   const parts = trimmed.split('=');
+                   if(parts[1]) {
+                       const val = parseFloat(parts[1]);
+                       if(!isNaN(val)) this.jumpForce = -Math.abs(val);
+                   }
+                }
+                if(trimmed.includes('player.speed')) {
+                   const parts = trimmed.split('=');
+                   if(parts[1]) {
+                       const val = parseFloat(parts[1]);
+                       if(!isNaN(val)) this.gameSpeed = Math.abs(val);
+                   }
+                }
+                return;
+            }
+            if(trimmed.length > 0) cleanRows.push(trimmed);
+        });
+
+        const height = cleanRows.length;
+
+        cleanRows.forEach((row, rIndex) => {
+            const yOffset = (height - 1 - rIndex) * 16; 
+            for(let c=0; c<row.length; c++) {
+                const char = row[c];
+                const x = c * 16;
+                const y = (this.floorY - 16) - yOffset; 
+                if (char === '1') parsedBlocks.push({x, y, type: 1}); 
+                else if (char === '2') parsedBlocks.push({x, y, type: 2}); 
+                else if (char === '3') parsedBlocks.push({x, y, type: 3}); 
+                else if (char === '4') parsedBlocks.push({x, y, type: 4}); 
+                else if (char === '5') parsedBlocks.push({x, y, type: 5}); 
+                else if (char === '6') parsedBlocks.push({x, y, type: 6}); 
+            }
+        });
+        return parsedBlocks;
+      }
+
+      startLevel(levelData) {
+        this.blocks = this.parseLevel(levelData);
+        this.player = { x: 30, y: this.floorY - 12, vy: 0, rotation: 0, dead: false, onGround: true };
+        this.cameraX = 0;
+        this.mode = 'PLAY';
+      }
+
+      onKeyPress(key) {
+        if (this.mode === 'MENU') {
+          if (key === 'up') { this.levelIndex = (this.levelIndex - 1 + this.levels.length + 1) % (this.levels.length + 1); playTone(200,'square',0.05); }
+          if (key === 'down') { this.levelIndex = (this.levelIndex + 1) % (this.levels.length + 1); playTone(200,'square',0.05); }
+          
+          if (key === 'b') system.stopGame();
+
+          if (key === 'a' || key === 'start') {
+            if (this.levelIndex === this.levels.length) this.mode = 'IMPORT_MENU';
+            else this.startLevel(this.levels[this.levelIndex]);
+          }
+        } 
+        else if (this.mode === 'IMPORT_MENU') {
+           if (key === 'up') { this.importIndex = (this.importIndex - 1 + 4) % 4; playTone(200,'square',0.05); }
+           if (key === 'down') { this.importIndex = (this.importIndex + 1) % 4; playTone(200,'square',0.05); }
+           if (key === 'b') this.mode = 'MENU';
+           if (key === 'a' || key === 'start') this.handleImport();
+        } 
+        else if (this.mode === 'PLAY') {
+          if (key === 'a' && !this.player.dead) {
+            if (this.player.onGround) {
+               this.player.vy = this.jumpForce;
+               this.player.onGround = false;
+               playTone(200, 'triangle', 0.1);
+            }
+          }
+          if (this.player.dead && key === 'a') {
+             this.player = { x: 30, y: this.floorY - 12, vy: 0, rotation: 0, dead: false, onGround: true };
+             this.cameraX = 0;
+          }
+          if (key === 'b') this.mode = 'MENU';
+        }
+        else if (this.mode === 'WIN') {
+            if (key === 'a' || key === 'start') this.startLevel(this.levels[this.levelIndex] || this.levels[0]);
+            if (key === 'b') this.mode = 'MENU';
+        }
+      }
+
+handleImport() {
+        if (this.importIndex === 0) { 
+            let str = prompt("Enter text:", "11111");
+            if(str) this.startLevel(str);
+        } else if (this.importIndex === 1) { 
+            document.getElementById('fileInput').click();
+            document.getElementById('fileInput').onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => this.startLevel(e.target.result);
+                reader.readAsText(file);
+            };
+        } else if (this.importIndex === 2) { 
+            navigator.clipboard.readText().then(text => {
+                if(text) this.startLevel(text);
+                else alert("Buffer empty");
+            }).catch(err => alert("Clipboard denied"));
+        } else if (this.importIndex === 3) {
+            const blob = new Blob([this.tutorialLevel], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'level_example.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            this.mode = 'MENU';
+            playTone(400, 'square', 0.1);
+        }
+      }
+
+      update() {
+        if (this.mode !== 'PLAY' || this.player.dead) return;
+
+        this.player.vy += this.gravity;
+        this.player.y += this.player.vy;
+        
+        if (this.player.y >= this.floorY - 12) { 
+            this.player.y = this.floorY - 12;
+            this.player.vy = 0;
+            this.player.onGround = true;
+            this.player.rotation = 0;
+        } else {
+            this.player.onGround = false;
+        }
+
+        if (!this.player.onGround) this.player.rotation += 8;
+        else {
+             let rem = this.player.rotation % 90;
+             if (rem > 45) this.player.rotation += (90-rem)*0.2;
+             else this.player.rotation -= rem*0.2;
+        }
+
+        this.cameraX += this.gameSpeed; 
+
+        const pSize = 12;
+        const px = this.player.x;
+        const py = this.player.y;
+        
+        const cx = px + pSize/2;
+        const cy = py + pSize/2;
+
+        for(let block of this.blocks) {
+           let bx = block.x - this.cameraX;
+           let by = block.y;
+           
+           if (bx < -30 || bx > 190) continue;
+
+           if (block.type === 5) {
+               if (px < bx + 16 && px + pSize > bx && py < 144 && py + pSize > 0) {
+                   this.win();
+                   return;
+               }
+           }
+           else if (px < bx + 16 && px + pSize > bx && py < by + 16 && py + pSize > by) {
+               
+               if (block.type === 6) continue; 
+               if (block.type === 3 || block.type === 4) { this.die(); return; }
+
+               if (block.type === 1 || block.type === 2) {
+                   if (this.player.vy >= 0 && (py + pSize) <= (by + this.player.vy + 4) && (py + pSize) > by) {
+                       this.player.y = by - pSize;
+                       this.player.vy = 0;
+                       this.player.onGround = true;
+                       this.player.rotation = 0; 
+                   } else {
+                       this.die();
+                   }
+               }
+           }
+        }
+      }
+
+      die() {
+        this.player.dead = true;
+        playNoise(0.3);
+      }
+
+      win() {
+          this.mode = 'WIN';
+          playTone(400, 'square', 0.1);
+          setTimeout(() => playTone(600, 'square', 0.2), 100);
+      }
+
+      render() {
+        if (this.mode === 'MENU' || this.mode === 'IMPORT_MENU') {
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillRect(0,0,160,20);
+            ctx.fillStyle = PALETTE.white;
+            ctx.fillText(this.mode==='MENU' ? "GD: SELECT LEVEL" : "IMPORT MODE", 30, 14);
+
+            if (this.mode === 'MENU') {
+                for(let i=0; i<this.levels.length + 1; i++) {
+                    let txt = (i === this.levels.length) ? "IMPORT..." : `LEVEL ${i+1}`;
+                    let y = 40 + i*15;
+                    if(i === this.levelIndex) {
+                        ctx.fillStyle = PALETTE.black; ctx.fillRect(10, y-8, 140, 12);
+                        ctx.fillStyle = PALETTE.white; ctx.fillText("> " + txt, 15, y);
+                    } else {
+                        ctx.fillStyle = PALETTE.dark; ctx.fillText("  " + txt, 15, y);
+                    }
+                }
+            } else {
+                this.importOptions.forEach((opt, i) => {
+                    let y = 40 + i*15;
+                    if(i === this.importIndex) {
+                        ctx.fillStyle = PALETTE.black; ctx.fillRect(10, y-8, 140, 12);
+                        ctx.fillStyle = PALETTE.white; ctx.fillText("> " + opt, 15, y);
+                    } else {
+                        ctx.fillStyle = PALETTE.dark; ctx.fillText("  " + opt, 15, y);
+                    }
+                });
+            }
+            return;
+        }
+
+        ctx.fillStyle = PALETTE.black;
+        ctx.fillRect(0, this.floorY, 160, 2);
+
+        for(let block of this.blocks) {
+           let bx = block.x - this.cameraX;
+           let by = block.y;
+           
+           if (bx < -20 || bx > 180) continue;
+
+           if (block.type === 1) { 
+             ctx.fillStyle = PALETTE.dark; ctx.fillRect(bx, by, 16, 16);
+             ctx.fillStyle = PALETTE.light; ctx.fillRect(bx+2, by+2, 12, 12);
+             ctx.fillStyle = PALETTE.dark; ctx.fillRect(bx+5, by+5, 6, 6);
+           } 
+           else if (block.type === 2) { 
+             ctx.fillStyle = PALETTE.dark; ctx.fillRect(bx, by, 16, 16);
+             ctx.fillStyle = PALETTE.light; 
+             ctx.fillRect(bx+1, by+1, 6, 6); ctx.fillRect(bx+9, by+1, 6, 6);
+             ctx.fillRect(bx+1, by+9, 6, 6); ctx.fillRect(bx+9, by+9, 6, 6);
+           }
+           else if (block.type === 3) { 
+             ctx.fillStyle = PALETTE.black;
+             ctx.beginPath(); ctx.moveTo(bx, by+16); ctx.lineTo(bx+8, by); ctx.lineTo(bx+16, by+16); ctx.fill();
+           } 
+           else if (block.type === 4) { 
+             ctx.fillStyle = PALETTE.black;
+             ctx.beginPath(); 
+             ctx.arc(bx+8, by+8, 7, 0, Math.PI*2);
+             ctx.fill();
+             ctx.strokeStyle = PALETTE.white;
+             ctx.beginPath(); ctx.moveTo(bx, by+8); ctx.lineTo(bx+16, by+8); ctx.stroke();
+             ctx.beginPath(); ctx.moveTo(bx+8, by); ctx.lineTo(bx+8, by+16); ctx.stroke();
+           }
+           else if (block.type === 5) {
+             ctx.fillStyle = PALETTE.light;
+             ctx.fillRect(bx, 0, 16, 144);
+             ctx.fillStyle = PALETTE.black;
+             ctx.globalAlpha = 0.5;
+             ctx.fillRect(bx+4, 0, 8, 144);
+             ctx.globalAlpha = 1.0;
+           }
+           else if (block.type === 6) {
+             ctx.fillStyle = PALETTE.light;
+             ctx.beginPath();
+             ctx.arc(bx+8, by+8, 10, 0, Math.PI*2);
+             ctx.fill();
+           }
+        }
+
+        if (!this.player.dead) {
+          ctx.save();
+          ctx.translate(this.player.x + 6, this.player.y + 6);
+          ctx.rotate(this.player.rotation * Math.PI / 180);
+          ctx.fillStyle = PALETTE.black; ctx.fillRect(-6, -6, 12, 12);
+          ctx.fillStyle = PALETTE.white; ctx.fillRect(-3, -3, 4, 4);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = PALETTE.black; ctx.fillText("CRASH!", 60, 70);
+        }
+
+        if (this.mode === 'WIN') {
+             ctx.fillStyle = 'rgba(15, 56, 15, 0.9)';
+             ctx.fillRect(30, 50, 100, 40);
+             ctx.strokeStyle = PALETTE.black;
+             ctx.strokeRect(30, 50, 100, 40);
+             ctx.fillStyle = PALETTE.white;
+             ctx.font = '8px "Press Start 2P"';
+             ctx.fillText("LEVEL COMPLETE", 38, 70);
+             ctx.font = '7px monospace';
+             ctx.fillText("PRESS A to RESTART", 42, 82);
+        }
+      }
+    }
+
+    class TetrisGame {
+        constructor() {
+            this.cols = 10; this.rows = 18; this.blockSize = 7; 
+            this.board = []; 
+            this.score = 0;
+            this.gameOver = false;
+            this.shapes = [
+                [[1,1,1,1]], 
+                [[1,1],[1,1]], 
+                [[0,1,0],[1,1,1]], 
+                [[1,0,0],[1,1,1]], 
+                [[0,0,1],[1,1,1]], 
+                [[0,1,1],[1,1,0]], 
+                [[1,1,0],[0,1,1]]  
+            ];
+            this.current = null;
+            this.pos = {x:0, y:0};
+            this.dropTimer = 0;
+            this.dropInterval = 30;
+        }
+        init() {
+            this.board = Array(this.rows).fill().map(() => Array(this.cols).fill(0));
+            this.spawn();
+            this.gameOver = false;
+            this.score = 0;
+        }
+        spawn() {
+            const id = Math.floor(Math.random() * this.shapes.length);
+            this.current = this.shapes[id];
+            this.pos = {x: Math.floor(this.cols/2)-1, y: 0};
+            if(this.collide(this.pos.x, this.pos.y, this.current)) this.gameOver = true;
+        }
+        collide(x, y, shape) {
+            for(let r=0; r<shape.length; r++) {
+                for(let c=0; c<shape[r].length; c++) {
+                    if(shape[r][c] && (this.board[y+r] && this.board[y+r][x+c]) !== 0) return true;
+                }
+            }
+            return false;
+        }
+        rotate() {
+            const rotated = this.current[0].map((val, index) => this.current.map(row => row[index]).reverse());
+            if(!this.collide(this.pos.x, this.pos.y, rotated)) {
+                this.current = rotated;
+                playTone(300,'square',0.05);
+            }
+        }
+        merge() {
+            this.current.forEach((row, r) => {
+                row.forEach((val, c) => {
+                    if(val) this.board[this.pos.y+r][this.pos.x+c] = 1;
+                });
+            });
+            for(let y=this.rows-1; y>=0; y--) {
+                if(this.board[y].every(v => v!==0)) {
+                    this.board.splice(y, 1);
+                    this.board.unshift(Array(this.cols).fill(0));
+                    this.score += 100;
+                    playTone(600,'sine',0.2);
+                    y++; 
+                }
+            }
+            playNoise(0.1);
+            this.spawn();
+        }
+        onKeyPress(key) {
+            if(this.gameOver) { if(key==='a') this.init(); return; }
+            if(key === 'left') { if(!this.collide(this.pos.x-1, this.pos.y, this.current)) this.pos.x--; }
+            if(key === 'right') { if(!this.collide(this.pos.x+1, this.pos.y, this.current)) this.pos.x++; }
+            if(key === 'down') { if(!this.collide(this.pos.x, this.pos.y+1, this.current)) this.pos.y++; }
+            if(key === 'a') this.rotate();
+            if(key === 'b') system.stopGame();
+        }
+        update() {
+            if(this.gameOver) return;
+            this.dropTimer++;
+            if(this.dropTimer > this.dropInterval) {
+                this.dropTimer = 0;
+                if(!this.collide(this.pos.x, this.pos.y+1, this.current)) {
+                    this.pos.y++;
+                } else {
+                    this.merge();
+                }
+            }
+        }
+        render() {
+            const offX = 45; const offY = 10;
+            ctx.strokeStyle = PALETTE.dark;
+            ctx.strokeRect(offX-2, offY-2, this.cols*this.blockSize+4, this.rows*this.blockSize+4);
+            
+            for(let y=0; y<this.rows; y++) {
+                for(let x=0; x<this.cols; x++) {
+                    if(this.board[y][x]) {
+                        ctx.fillStyle = PALETTE.black;
+                        ctx.fillRect(offX+x*this.blockSize, offY+y*this.blockSize, this.blockSize-1, this.blockSize-1);
+                    }
+                }
+            }
+            if(this.current) {
+                ctx.fillStyle = PALETTE.dark;
+                this.current.forEach((row, r) => {
+                    row.forEach((val, c) => {
+                        if(val) ctx.fillRect(offX+(this.pos.x+c)*this.blockSize, offY+(this.pos.y+r)*this.blockSize, this.blockSize-1, this.blockSize-1);
+                    });
+                });
+            }
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillText("SCR:"+this.score, 5, 140);
+            if(this.gameOver) ctx.fillText("GAME OVER", 45, 70);
+        }
+    }
+
+    class CalculatorGame {
+        constructor() {
+            this.buttons = [
+                ['7','8','9','/'],
+                ['4','5','6','*'],
+                ['1','2','3','-'],
+                ['C','0','=','+']
+            ];
+            this.cx = 0; this.cy = 0;
+            this.display = "0";
+            this.newEntry = true;
+        }
+        init() { this.display = "0"; this.cx=0; this.cy=0; }
+        onKeyPress(key) {
+            if(key==='up') this.cy = (this.cy-1+4)%4;
+            if(key==='down') this.cy = (this.cy+1)%4;
+            if(key==='left') this.cx = (this.cx-1+4)%4;
+            if(key==='right') this.cx = (this.cx+1)%4;
+            if(key === 'b') system.stopGame();
+            if(key==='a') {
+                const val = this.buttons[this.cy][this.cx];
+                playTone(400,'sine',0.05);
+                if(val === 'C') { this.display = "0"; this.newEntry = true; }
+                else if(val === '=') {
+                    try { this.display = eval(this.display).toString().substr(0,10); } catch { this.display = "ERR"; }
+                    this.newEntry = true;
+                } else {
+                    if(this.newEntry || this.display==="0") { this.display = val; this.newEntry = false; }
+                    else { if(this.display.length < 10) this.display += val; }
+                }
+            }
+        }
+        update() {}
+        render() {
+            ctx.fillStyle = PALETTE.light;
+            ctx.fillRect(10, 10, 140, 30);
+            ctx.strokeStyle = PALETTE.dark;
+            ctx.strokeRect(10, 10, 140, 30);
+            ctx.fillStyle = PALETTE.black;
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(this.display, 145, 30);
+            ctx.textAlign = 'start';
+
+            for(let y=0; y<4; y++) {
+                for(let x=0; x<4; x++) {
+                    const bx = 20 + x*32;
+                    const by = 50 + y*22;
+                    if(x === this.cx && y === this.cy) {
+                        ctx.fillStyle = PALETTE.black;
+                        ctx.fillRect(bx, by, 28, 18);
+                        ctx.fillStyle = PALETTE.white;
+                        ctx.fillText(this.buttons[y][x], bx+10, by+13);
+                    } else {
+                        ctx.fillStyle = PALETTE.light;
+                        ctx.fillRect(bx, by, 28, 18);
+                        ctx.strokeStyle = PALETTE.dark;
+                        ctx.strokeRect(bx, by, 28, 18);
+                        ctx.fillStyle = PALETTE.dark;
+                        ctx.fillText(this.buttons[y][x], bx+10, by+13);
+                    }
+                }
+            }
+        }
+    }
+
+    class SnakeGame {
+        constructor() {
+            this.gridSize = 10;
+            this.cols = 16; this.rows = 14;
+            this.snake = []; this.food = {};
+            this.dir = {x:1, y:0};
+            this.nextDir = {x:1, y:0};
+            this.timer = 0;
+            this.gameOver = false;
+        }
+        init() {
+            this.snake = [{x:5, y:5}, {x:4, y:5}, {x:3, y:5}];
+            this.spawnFood();
+            this.gameOver = false;
+            this.score = 0;
+        }
+        spawnFood() {
+            while(true) {
+                this.food = { x: Math.floor(Math.random()*this.cols), y: Math.floor(Math.random()*this.rows) };
+                if(!this.snake.some(s => s.x === this.food.x && s.y === this.food.y)) break;
+            }
+        }
+        onKeyPress(key) {
+            if(this.gameOver && key==='a') this.init();
+            if(key === 'b') system.stopGame();
+            if(key==='up' && this.dir.y===0) this.nextDir = {x:0, y:-1};
+            if(key==='down' && this.dir.y===0) this.nextDir = {x:0, y:1};
+            if(key==='left' && this.dir.x===0) this.nextDir = {x:-1, y:0};
+            if(key==='right' && this.dir.x===0) this.nextDir = {x:1, y:0};
+        }
+        update() {
+            if(this.gameOver) return;
+            this.timer++;
+            if(this.timer > 10) {
+                this.timer = 0;
+                this.dir = this.nextDir;
+                const head = {x: this.snake[0].x + this.dir.x, y: this.snake[0].y + this.dir.y};
+                
+                if(head.x < 0 || head.x >= this.cols || head.y < 0 || head.y >= this.rows || this.snake.some(s=>s.x===head.x && s.y===head.y)) {
+                    this.gameOver = true; playNoise(0.2); return;
+                }
+
+                this.snake.unshift(head);
+                if(head.x === this.food.x && head.y === this.food.y) {
+                    this.score += 10;
+                    playTone(500,'square',0.1);
+                    this.spawnFood();
+                } else {
+                    this.snake.pop();
+                }
+            }
+        }
+        render() {
+            this.snake.forEach((s, i) => {
+                ctx.fillStyle = i===0 ? PALETTE.black : PALETTE.dark;
+                ctx.fillRect(s.x*10, s.y*10, 9, 9);
+            });
+            ctx.fillStyle = PALETTE.black;
+            ctx.fillRect(this.food.x*10+2, this.food.y*10+2, 5, 5);
+            
+            if(this.gameOver) {
+                ctx.fillStyle = PALETTE.white;
+                ctx.fillRect(40,60,80,20);
+                ctx.fillStyle = PALETTE.black;
+                ctx.fillText("GAME OVER", 50, 75);
+            }
+        }
+    }
+
+    class MinesweeperGame {
+      constructor() {
+        this.cols = 16; this.rows = 14; this.cellSize = 10;
+        this.grid = []; this.cursor = { x: 7, y: 7 };
+        this.state = 'PLAY'; this.mineCount = 30;
+      }
+      init() {
+        this.grid = [];
+        for (let y = 0; y < this.rows; y++) {
+          let row = [];
+          for (let x = 0; x < this.cols; x++) {
+            row.push({ mine: false, open: false, flag: false, count: 0 });
+          }
+          this.grid.push(row);
+        }
+        let placed = 0;
+        while (placed < this.mineCount) {
+          let rx = Math.floor(Math.random() * this.cols);
+          let ry = Math.floor(Math.random() * this.rows);
+          if (!this.grid[ry][rx].mine && Math.abs(rx - 7) > 1 && Math.abs(ry - 7) > 1) {
+            this.grid[ry][rx].mine = true; placed++;
+          }
+        }
+        for (let y = 0; y < this.rows; y++) {
+          for (let x = 0; x < this.cols; x++) {
+            if (!this.grid[y][x].mine) {
+              let count = 0;
+              for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                  let ny = y + dy; let nx = x + dx;
+                  if (ny >= 0 && ny < this.rows && nx >= 0 && nx < this.cols && this.grid[ny][nx].mine) count++;
+                }
+              }
+              this.grid[y][x].count = count;
+            }
+          }
+        }
+        this.state = 'PLAY';
+      }
+      onKeyPress(key) {
+        if (this.state !== 'PLAY') {
+          if (key === 'a') system.stopGame();
+          return;
+        }
+        if (key === 'up') this.cursor.y = Math.max(0, this.cursor.y - 1);
+        if (key === 'down') this.cursor.y = Math.min(this.rows - 1, this.cursor.y + 1);
+        if (key === 'left') this.cursor.x = Math.max(0, this.cursor.x - 1);
+        if (key === 'right') this.cursor.x = Math.min(this.cols - 1, this.cursor.x + 1);
+        
+        const cell = this.grid[this.cursor.y][this.cursor.x];
+        
+        if (key === 'select') system.stopGame();
+
+        if (key === 'a' && !cell.flag) {
+           if (cell.mine) { cell.open = true; this.state = 'DEAD'; playNoise(0.5); } 
+           else { this.reveal(this.cursor.x, this.cursor.y); playTone(600, 'sine', 0.05); }
+        }
+        if (key === 'b' && !cell.open) {
+          cell.flag = !cell.flag; playTone(200, 'triangle', 0.05);
+        }
+      }
+      reveal(x, y) {
+        if (x < 0 || x >= this.cols || y < 0 || y >= this.rows) return;
+        const cell = this.grid[y][x];
+        if (cell.open || cell.flag) return;
+        cell.open = true;
+        if (cell.count === 0) {
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) { this.reveal(x + dx, y + dy); }
+          }
+        }
+      }
+      update() {}
+      render() {
+        ctx.font = '8px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        for (let y = 0; y < this.rows; y++) {
+          for (let x = 0; x < this.cols; x++) {
+            const cell = this.grid[y][x];
+            const px = x * this.cellSize; const py = y * this.cellSize;
+            if (cell.open) { ctx.fillStyle = PALETTE.white; } 
+            else { ctx.fillStyle = PALETTE.light; ctx.fillRect(px, py, this.cellSize - 1, this.cellSize - 1); }
+            if (cell.open) {
+              if (cell.mine) { ctx.fillStyle = PALETTE.black; ctx.beginPath(); ctx.arc(px + 5, py + 5, 3, 0, Math.PI*2); ctx.fill(); } 
+              else if (cell.count > 0) { ctx.fillStyle = PALETTE.black; ctx.fillText(cell.count, px + 5, py + 5); }
+            } else if (cell.flag) { ctx.fillStyle = PALETTE.black; ctx.fillText('F', px + 5, py + 5); }
+            if (x === this.cursor.x && y === this.cursor.y) {
+              ctx.strokeStyle = PALETTE.black; ctx.lineWidth = 2; ctx.strokeRect(px, py, this.cellSize, this.cellSize);
+            }
+          }
+        }
+        if (this.state === 'DEAD') {
+          ctx.fillStyle = 'rgba(15, 56, 15, 0.8)'; ctx.fillRect(40, 60, 80, 20);
+          ctx.fillStyle = PALETTE.white; ctx.font = '8px "Press Start 2P"'; ctx.fillText("BOOM!", 80, 70);
+        }
+        ctx.textAlign = 'start'; ctx.textBaseline = 'alphabetic';
+      }
+    }
+
+    class SpaceShooterGame {
+      constructor() {
+        this.player = { x: 80, y: 120, width: 8, height: 8, speed: 1.8 };
+        this.bullets = [];
+        this.meteors = [];
+        this.score = 0;
+        this.lives = 3;
+        this.gameOver = false;
+        this.bulletCooldown = 0;
+        this.spawnTimer = 0;
+        this.speed = 1.5;
+        this.moveDelay = 0;
+        this.moveSpeed = 2;
+      }
+
+      init() {
+        this.player = { x: 80, y: 120, width: 8, height: 8, speed: 1.8 };
+        this.bullets = [];
+        this.meteors = [];
+        this.score = 0;
+        this.lives = 3;
+        this.gameOver = false;
+        this.bulletCooldown = 0;
+        this.spawnTimer = 0;
+        this.speed = 1.5;
+        this.moveDelay = 0;
+      }
+
+      onKeyPress(key) {
+        if (this.gameOver) {
+          if (key === 'a') this.init();
+          if (key === 'b') system.stopGame();
+          return;
+        }
+        if (key === 'a') {
+          if (this.bulletCooldown <= 0) {
+            this.bullets.push({ x: this.player.x + 3, y: this.player.y, width: 2, height: 5, speed: 3 });
+            this.bulletCooldown = 10;
+            playTone(300, 'square', 0.05);
+          }
+        }
+        if (key === 'b') system.stopGame();
+      }
+
+      update() {
+        if (this.gameOver) return;
+
+        this.moveDelay++;
+        
+        if (this.moveDelay >= this.moveSpeed) {
+          if (input.left) this.player.x -= this.player.speed;
+          if (input.right) this.player.x += this.player.speed;
+          if (input.up) this.player.y -= this.player.speed;
+          if (input.down) this.player.y += this.player.speed;
+          this.moveDelay = 0;
+        }
+
+        this.player.x = Math.max(0, Math.min(160 - this.player.width, this.player.x));
+        this.player.y = Math.max(0, Math.min(144 - this.player.height, this.player.y));
+
+        if (this.bulletCooldown > 0) this.bulletCooldown--;
+
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+          let b = this.bullets[i];
+          b.y -= b.speed;
+          if (b.y < -5) {
+            this.bullets.splice(i, 1);
+            continue;
+          }
+
+          for (let j = this.meteors.length - 1; j >= 0; j--) {
+            let m = this.meteors[j];
+            if (b.x < m.x + m.size &&
+                b.x + b.width > m.x &&
+                b.y < m.y + m.size &&
+                b.y + b.height > m.y) {
+              this.score += Math.round(20 / m.size);
+              this.meteors.splice(j, 1);
+              this.bullets.splice(i, 1);
+              playTone(200, 'square', 0.05);
+              break;
+            }
+          }
+        }
+
+        this.spawnTimer++;
+        if (this.spawnTimer > 30) {
+          let size = Math.random() * 12 + 6;
+          this.meteors.push({
+            x: Math.random() * (160 - size),
+            y: -size,
+            size: size,
+            speed: Math.random() * 1.5 + 0.5 + this.speed * 0.1,
+            vx: (Math.random() - 0.5) * 0.8
+          });
+          this.spawnTimer = 0;
+        }
+
+        for (let i = this.meteors.length - 1; i >= 0; i--) {
+          let m = this.meteors[i];
+          m.y += m.speed;
+          m.x += m.vx;
+
+          if (m.y > 144) {
+            this.meteors.splice(i, 1);
+            continue;
+          }
+
+          if (this.player.x < m.x + m.size &&
+              this.player.x + this.player.width > m.x &&
+              this.player.y < m.y + m.size &&
+              this.player.y + this.player.height > m.y) {
+            this.lives--;
+            this.meteors.splice(i, 1);
+            playNoise(0.2);
+            if (this.lives <= 0) this.gameOver = true;
+          }
+        }
+
+        this.speed += 0.0005;
+      }
+
+      render() {
+        ctx.fillStyle = PALETTE.black;
+        ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
+        ctx.fillStyle = PALETTE.white;
+        ctx.fillRect(this.player.x + 2, this.player.y + 2, 4, 4);
+
+        ctx.fillStyle = PALETTE.dark;
+        this.bullets.forEach(b => {
+          ctx.fillRect(b.x, b.y, b.width, b.height);
+        });
+
+        this.meteors.forEach(m => {
+          ctx.fillStyle = PALETTE.black;
+          ctx.beginPath();
+          ctx.arc(m.x + m.size/2, m.y + m.size/2, m.size/2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = PALETTE.dark;
+          ctx.beginPath();
+          ctx.arc(m.x + m.size/2 - 2, m.y + m.size/2 - 2, m.size/4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.fillStyle = PALETTE.black;
+        ctx.font = '8px "Press Start 2P"';
+        ctx.fillText("SCORE:" + this.score, 5, 12);
+        ctx.fillText("LIVES:" + this.lives, 5, 24);
+
+        if (this.gameOver) {
+          ctx.fillStyle = PALETTE.white;
+          ctx.fillRect(40, 60, 80, 20);
+          ctx.strokeStyle = PALETTE.black;
+          ctx.strokeRect(40, 60, 80, 20);
+          ctx.fillStyle = PALETTE.black;
+          ctx.fillText("GAME OVER", 45, 75);
+        }
+      }
+    }
+
+    const system = new System();
+    system.start();
+
+  </script>
+</body>
+</html>
