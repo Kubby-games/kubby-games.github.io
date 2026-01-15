@@ -252,6 +252,7 @@
     function playTone(freq, type='square', duration=0.1) {
       if(audioCtx.state === 'suspended') audioCtx.resume();
       if(GLOBAL_VOLUME <= 0) return;
+      if(freq <= 0) return; 
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = type;
@@ -512,22 +513,29 @@
             this.playIndex = -1;
             this.isPlaying = false;
             this.lastPlayTime = 0;
-            this.tempo = 300; 
+            this.bpm = 200; 
             
-            this.keys = [
-                { lbl: 'C', freq: 261.63 },
-                { lbl: 'D', freq: 293.66 },
-                { lbl: 'E', freq: 329.63 },
-                { lbl: 'F', freq: 349.23 },
-                { lbl: 'G', freq: 392.00 },
-                { lbl: 'A', freq: 440.00 },
-                { lbl: 'B', freq: 493.88 },
-                { lbl: 'C2', freq: 523.25 }
+            const tones = [
+              { l: 'C3', f: 130.81, b: false }, { l: 'C#3', f: 138.59, b: true },
+              { l: 'D3', f: 146.83, b: false }, { l: 'D#3', f: 155.56, b: true },
+              { l: 'E3', f: 164.81, b: false },
+              { l: 'F3', f: 174.61, b: false }, { l: 'F#3', f: 185.00, b: true },
+              { l: 'G3', f: 196.00, b: false }, { l: 'G#3', f: 207.65, b: true },
+              { l: 'A3', f: 220.00, b: false }, { l: 'A#3', f: 233.08, b: true },
+              { l: 'B3', f: 246.94, b: false },
+              { l: 'C4', f: 261.63, b: false }, { l: 'C#4', f: 277.18, b: true },
+              { l: 'D4', f: 293.66, b: false }, { l: 'D#4', f: 311.13, b: true },
+              { l: 'E4', f: 329.63, b: false },
+              { l: 'F4', f: 349.23, b: false }
             ];
+
+            this.keys = [{ l: 'REST', f: 0, b: false, w: 12 }].concat(tones);
+
             this.selectedKey = 0;
             this.menuOpen = false;
-            this.menuOptions = ['DEL LAST', 'CLEAR ALL', 'EXPORT TXT', 'IMPORT TXT'];
+            this.menuOptions = ['BPM', 'DEL LAST', 'CLEAR ALL', 'EXPORT', 'IMPORT'];
             this.menuIdx = 0;
+            this.holdTimer = 0;
         }
 
         init() {
@@ -536,34 +544,49 @@
             }
             this.isPlaying = false;
             this.playIndex = -1;
+            this.holdTimer = 0;
         }
 
         onKeyPress(key) {
             if (this.menuOpen) {
-                if(key === 'up') { this.menuIdx = (this.menuIdx - 1 + 4) % 4; playTone(200,'square',0.05); }
-                if(key === 'down') { this.menuIdx = (this.menuIdx + 1) % 4; playTone(200,'square',0.05); }
+                if(key === 'up') { 
+                    this.menuIdx = (this.menuIdx - 1 + this.menuOptions.length) % this.menuOptions.length; 
+                    playTone(200,'square',0.05); 
+                }
+                if(key === 'down') { 
+                    this.menuIdx = (this.menuIdx + 1) % this.menuOptions.length; 
+                    playTone(200,'square',0.05); 
+                }
+                
+                if (this.menuOptions[this.menuIdx] === 'BPM') {
+                   if (key === 'left') this.adjustBpm(-1);
+                   if (key === 'right') this.adjustBpm(1);
+                }
+
                 if(key === 'select' || key === 'b') { this.menuOpen = false; playTone(150,'square',0.05); }
                 if(key === 'a' || key === 'start') {
-                    this.executeMenu();
-                    playTone(400,'square',0.1);
-                    if (this.menuIdx < 2) this.menuOpen = false; 
+                    if (this.menuOptions[this.menuIdx] !== 'BPM') {
+                        this.executeMenu();
+                        playTone(400,'square',0.1);
+                        if (this.menuIdx < 3) this.menuOpen = false; 
+                    }
                 }
                 return;
             }
 
             if (key === 'left') {
                 this.selectedKey = (this.selectedKey - 1 + this.keys.length) % this.keys.length;
-                playTone(this.keys[this.selectedKey].freq, 'triangle', 0.05);
+                if(this.keys[this.selectedKey].f > 0) playTone(this.keys[this.selectedKey].f, 'triangle', 0.05);
             }
             if (key === 'right') {
                 this.selectedKey = (this.selectedKey + 1) % this.keys.length;
-                playTone(this.keys[this.selectedKey].freq, 'triangle', 0.05);
+                if(this.keys[this.selectedKey].f > 0) playTone(this.keys[this.selectedKey].f, 'triangle', 0.05);
             }
             if (key === 'a') {
                 if(this.notes.length < 100) {
                     this.notes.push(this.keys[this.selectedKey]);
                     GLOBAL_MUSIC_CACHE = this.notes; 
-                    playTone(this.keys[this.selectedKey].freq, 'square', 0.1);
+                    if(this.keys[this.selectedKey].f > 0) playTone(this.keys[this.selectedKey].f, 'square', 0.1);
                 }
             }
             if (key === 'b') {
@@ -579,18 +602,22 @@
                 this.isPlaying = false;
             }
         }
+        
+        adjustBpm(delta) {
+            this.bpm = Math.max(60, Math.min(600, this.bpm + delta));
+        }
 
         executeMenu() {
-            if(this.menuIdx === 0) { 
+            if(this.menuIdx === 1) { 
                 if(this.notes.length > 0) this.notes.pop();
                 GLOBAL_MUSIC_CACHE = this.notes;
             }
-            if(this.menuIdx === 1) { 
+            if(this.menuIdx === 2) { 
                 this.notes = [];
                 GLOBAL_MUSIC_CACHE = this.notes;
             }
-            if(this.menuIdx === 2) { 
-                const data = JSON.stringify(this.notes.map(n => n.lbl)); 
+            if(this.menuIdx === 3) { 
+                const data = JSON.stringify(this.notes.map(n => n.l)); 
                 const blob = new Blob([data], {type: 'text/plain'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -600,7 +627,7 @@
                 URL.revokeObjectURL(url);
                 this.menuOpen = false;
             }
-            if(this.menuIdx === 3) { 
+            if(this.menuIdx === 4) { 
                 const fileInput = document.getElementById('fileInput');
                 fileInput.value = '';
                 fileInput.onchange = (e) => {
@@ -613,7 +640,7 @@
                             if(Array.isArray(arr)) {
                                 this.notes = [];
                                 arr.forEach(lbl => {
-                                    const k = this.keys.find(key => key.lbl === lbl);
+                                    const k = this.keys.find(key => key.l === lbl);
                                     if(k) this.notes.push(k);
                                 });
                                 GLOBAL_MUSIC_CACHE = this.notes;
@@ -628,15 +655,28 @@
         }
 
         update() {
+            if (this.menuOpen && this.menuOptions[this.menuIdx] === 'BPM') {
+                 if (input.left) {
+                     this.holdTimer++;
+                     if(this.holdTimer > 20) this.adjustBpm(-2);
+                 } else if (input.right) {
+                     this.holdTimer++;
+                     if(this.holdTimer > 20) this.adjustBpm(2);
+                 } else {
+                     this.holdTimer = 0;
+                 }
+            }
+
             if (this.isPlaying && this.notes.length > 0) {
                 const now = Date.now();
-                if (now - this.lastPlayTime > this.tempo) {
+                const delay = 60000 / this.bpm;
+                if (now - this.lastPlayTime > delay) {
                     this.playIndex++;
                     if (this.playIndex >= this.notes.length) {
                         this.playIndex = 0; 
                     }
                     const note = this.notes[this.playIndex];
-                    playTone(note.freq, 'square', 0.2);
+                    if (note.f > 0) playTone(note.f, 'square', 0.2);
                     this.lastPlayTime = now;
                 }
             }
@@ -650,7 +690,7 @@
             ctx.fillRect(0,0,160,15);
             ctx.fillStyle = PALETTE.white;
             ctx.font = '8px "Press Start 2P"';
-            ctx.fillText(this.isPlaying ? "PLAYING..." : "MUSIC MAKER", 40, 10);
+            ctx.fillText(this.isPlaying ? "PLAYING..." : `PIANO BPM:${this.bpm}`, 30, 10);
 
             ctx.fillStyle = PALETTE.light;
             ctx.fillRect(0, 15, 160, 80); 
@@ -674,33 +714,54 @@
                     ctx.fillRect(renderX-1, renderY-9, 10, 10);
                     ctx.fillStyle = PALETTE.black;
                 }
-                ctx.fillText(n.lbl.replace('2',''), renderX, renderY);
+                
+                let label = n.l.replace(/[0-9]/g, '');
+                if(label === 'REST') label = '-';
+                ctx.fillText(label, renderX, renderY);
             });
 
-            const keyWidth = 18;
-            const startX = 8;
+            const startX = 2;
             const keyY = 100;
-            const keyHeight = 35; 
-
+            const whiteHeight = 35;
+            const blackHeight = 22;
+            const whiteWidth = 10;
+            const blackWidth = 6;
+            
+            let wIdx = 0;
+            
             this.keys.forEach((k, i) => {
-                let bx = startX + i * keyWidth;
+                if (k.b) return; 
+                let x = startX + (k.l === 'REST' ? 0 : 14) + wIdx * (whiteWidth + 1);
+                k.renderX = x; k.renderW = (k.l === 'REST' ? 12 : whiteWidth);
                 
-                if (i === this.selectedKey) {
-                    ctx.fillStyle = PALETTE.dark; 
-                    ctx.fillRect(bx, keyY + 5, keyWidth, keyHeight - 5); 
-                } else {
-                    ctx.fillStyle = PALETTE.white;
-                    ctx.fillRect(bx, keyY, keyWidth, keyHeight);
-                    ctx.fillStyle = PALETTE.light;
-                    ctx.fillRect(bx + 2, keyY + keyHeight - 5, keyWidth - 4, 5);
-                }
+                if (i === this.selectedKey) ctx.fillStyle = PALETTE.dark; 
+                else ctx.fillStyle = PALETTE.white;
                 
+                ctx.fillRect(x, keyY, k.renderW, whiteHeight);
                 ctx.strokeStyle = PALETTE.black;
-                ctx.strokeRect(bx, keyY, keyWidth, keyHeight);
+                ctx.strokeRect(x, keyY, k.renderW, whiteHeight);
+                
+                if (k.l === 'REST') {
+                   ctx.fillStyle = (i === this.selectedKey) ? PALETTE.white : PALETTE.black;
+                   ctx.fillText("R", x+3, keyY+25);
+                }
+                if (k.l !== 'REST') wIdx++;
+            });
 
-                ctx.fillStyle = PALETTE.black;
-                ctx.font = '8px monospace';
-                ctx.fillText(k.lbl, bx + 4, keyY + 25);
+            wIdx = 0;
+            this.keys.forEach((k, i) => {
+                if (!k.b) { if(k.l !== 'REST') wIdx++; return; }
+                
+                let prevWhiteX = startX + 14 + (wIdx - 1) * (whiteWidth + 1);
+                let x = prevWhiteX + whiteWidth - (blackWidth/2) + 1;
+                k.renderX = x; k.renderW = blackWidth;
+
+                if (i === this.selectedKey) ctx.fillStyle = PALETTE.light; 
+                else ctx.fillStyle = PALETTE.black;
+                
+                ctx.fillRect(x, keyY, blackWidth, blackHeight);
+                ctx.strokeStyle = PALETTE.white;
+                ctx.strokeRect(x, keyY, blackWidth, blackHeight);
             });
 
             ctx.fillStyle = PALETTE.dark;
@@ -708,16 +769,19 @@
             ctx.fillText("SEL:Menu START:Play A:Add", 10, 142);
 
             if (this.menuOpen) {
-                ctx.fillStyle = 'rgba(155, 188, 15, 0.9)';
-                ctx.fillRect(30, 30, 100, 80);
+                ctx.fillStyle = 'rgba(155, 188, 15, 0.95)';
+                ctx.fillRect(25, 25, 110, 90);
                 ctx.strokeStyle = PALETTE.black;
-                ctx.strokeRect(30, 30, 100, 80);
+                ctx.strokeRect(25, 25, 110, 90);
                 
                 ctx.fillStyle = PALETTE.black;
                 ctx.font = '8px "Press Start 2P"';
                 this.menuOptions.forEach((opt, i) => {
-                    if (i === this.menuIdx) ctx.fillText("> " + opt, 35, 50 + i*15);
-                    else ctx.fillText("  " + opt, 35, 50 + i*15);
+                    let display = opt;
+                    if(opt === 'BPM') display = `BPM <${this.bpm}>`;
+                    
+                    if (i === this.menuIdx) ctx.fillText("> " + display, 30, 45 + i*15);
+                    else ctx.fillText("  " + display, 30, 45 + i*15);
                 });
             }
         }
