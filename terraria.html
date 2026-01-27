@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IDK Defense</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        :root {
+            --bg-color: #c7f0d8; 
+            --fg-color: #43523d; 
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: var(--fg-color);
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            image-rendering: pixelated; 
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .score {
+            font-size: 5vh;
+            text-transform: uppercase;
+        }
+
+        .btn-icon {
+            pointer-events: auto;
+            border: 2px solid var(--fg-color);
+            background: var(--bg-color);
+            color: var(--fg-color);
+            padding: 5px 10px;
+            font-family: 'VT323', monospace;
+            font-size: 3vh;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-icon:hover, .btn-icon.selected {
+            background: var(--fg-color);
+            color: var(--bg-color);
+        }
+
+        .overlay-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(199, 240, 216, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        h1 { font-size: 8vh; margin: 0 0 1vh 0; letter-spacing: 5px; text-transform: uppercase; }
+        h2 { font-size: 5vh; margin: 2vh 0 1vh 0; text-transform: uppercase; border-bottom: 2px solid var(--fg-color); }
+        p { font-size: 3vh; margin: 0.5vh 0; text-align: center; }
+
+        .menu-btn {
+            margin-top: 15px;
+            font-size: 4vh;
+            border: 2px solid var(--fg-color);
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--fg-color);
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            min-width: 200px;
+        }
+        
+        .menu-btn:hover, .menu-btn:focus, .menu-btn.selected {
+            background: var(--fg-color);
+            color: var(--bg-color);
+            outline: none;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 85%;
+            max-width: 600px;
+            margin: 4px 0;
+            font-size: 3vh;
+            padding: 4px;
+            border: 2px solid transparent; 
+            cursor: pointer;
+        }
+
+        .setting-row.selected {
+            border: 2px solid var(--fg-color); 
+            background: rgba(67, 82, 61, 0.1);
+        }
+
+        .toggle-btn {
+            text-decoration: underline;
+            margin-left: 20px;
+            white-space: nowrap;
+        }
+
+        .hidden { display: none !important; }
+        
+        #pause-overlay {
+            position: absolute;
+            top: 45%;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10vh;
+            color: var(--fg-color);
+            text-shadow: 2px 2px var(--bg-color);
+            display: none;
+            z-index: 50;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas"></canvas>
+    <div class="scanlines"></div>
+    <div id="pause-overlay">ПАУЗА</div>
+    
+    <div id="ui-layer">
+        <div class="hud-top">
+            <div class="score">PTS: <span id="scoreVal">0</span></div>
+            <button class="btn-icon" id="settingsBtn" tabindex="-1">НАСТРОЙКИ</button>
+        </div>
+    </div>
+
+    <div id="start-screen" class="overlay-screen" data-screen="start">
+        <h1>IDK DEFENSE</h1>
+        <p>защити ядро с пушкой</p>
+        <button class="menu-btn" onclick="startGame()" id="btn-start">ИГРАТЬ</button>
+        <div style="margin-top: 30px; font-size: 2.5vh; text-align: center;">
+весь буджет потрачен на фурри виндуса босс
+        </div>
+    </div>
+
+    <div id="settings-screen" class="overlay-screen hidden" data-screen="settings">
+        <h2>НАСТРОЙКИ</h2>
+        
+        <div class="setting-row" id="row-sound" onclick="toggleSound()">
+            <span>ЗВУК:</span>
+            <span class="toggle-btn" id="soundToggle">ВКЛ</span>
+        </div>
+        
+        <div class="setting-row" id="row-diff" onclick="toggleDiff()">
+            <span>СЛОЖНОСТЬ:</span>
+            <span class="toggle-btn" id="diffToggle">НОРМА</span>
+        </div>
+
+        <div class="setting-row" id="row-grav" onclick="toggleGravity()">
+            <span>ГРАВИТАЦИЯ:</span>
+            <span class="toggle-btn" id="gravToggle">НЕТ</span>
+        </div>
+
+        <div class="setting-row" id="row-ctrl" onclick="toggleControls()">
+            <span>УПРАВЛЕНИЕ:</span>
+            <span class="toggle-btn" id="controlToggle">AUTO</span>
+        </div>
+
+        <div class="setting-row" id="row-shield-size" onclick="toggleShieldSize()">
+            <span>ЩИТ (ПРАВЫЙ СТИК):</span>
+            <span class="toggle-btn" id="shieldSizeToggle">СРЕДНИЙ</span>
+        </div>
+
+        <div class="setting-row" id="row-shield-follow" onclick="toggleShieldFollow()">
+            <span>СЛЕДОВАНИЕ ЗА ПУШКОЙ ЩИТ:</span>
+            <span class="toggle-btn" id="shieldFollowToggle">НЕТ</span>
+        </div>
+
+        <div class="setting-row" id="row-enemy-var" onclick="toggleEnemyVar()">
+            <span>РАЗНООБРАЗНОСТЬ ВРАГОВ:</span>
+            <span class="toggle-btn" id="enemyVarToggle">НОРМА</span>
+        </div>
+
+        <button class="menu-btn" onclick="closeSettings()" id="btn-back">НАЗАД</button>
+    </div>
+
+    <div id="game-over-screen" class="overlay-screen hidden" data-screen="gameover">
+        <h1>GAME OVER</h1>
+        <p>СЧЕТ: <span id="finalScore">0</span></p>
+        <button class="menu-btn" onclick="startGame()" id="btn-restart">РЕСТАРТ</button>
+        <button class="menu-btn" onclick="openSettingsFromOver()" id="btn-settings-over">НАСТРОЙКИ</button>
+    </div>
+
+<script>
+const GravityModes = [
+    { name: "НЕТ", val: 0 },
+    { name: "СЛАБАЯ", val: 0.15 },
+    { name: "НОРМА", val: 0.35 },
+    { name: "СИЛЬНАЯ", val: 0.7 }
+];
+
+const ShieldSizeModes = [
+    { name: "НЕТУ", val: 0 },
+    { name: "МАЛЕНЬКИЙ", val: Math.PI / 4 },
+    { name: "СРЕДНИЙ", val: Math.PI / 2 },
+    { name: "БОЛЬШОЙ", val: Math.PI }
+];
+
+const EnemyVarModes = ["НИЗКАЯ", "НОРМА", "ВЫСОКАЯ"];
+
+const GameSettings = {
+    sound: true,
+    difficulty: 1, 
+    gravityIndex: 0,
+    controls: 'auto',
+    shieldSizeIndex: 2, 
+    shieldFollow: false,
+    enemyVariety: 1 
+};
+
+const DiffParams = [
+    { name: "ЛЕГКО", spawnRate: 1500, enemySpeed: 0.9 },
+    { name: "НОРМА", spawnRate: 1100, enemySpeed: 1.3 },
+    { name: "ХАРД",  spawnRate: 700, enemySpeed: 1.9 }
+];
+
+function toggleSound() {
+    GameSettings.sound = !GameSettings.sound;
+    document.getElementById('soundToggle').innerText = GameSettings.sound ? "ВКЛ" : "ВЫКЛ";
+    if(!GameSettings.sound) AudioEngine.stopMusic();
+    else if(isPlaying && !isPaused) AudioEngine.startMusic();
+}
+
+function toggleDiff() {
+    GameSettings.difficulty = (GameSettings.difficulty + 1) % 3;
+    document.getElementById('diffToggle').innerText = DiffParams[GameSettings.difficulty].name;
+}
+
+function toggleGravity() {
+    GameSettings.gravityIndex = (GameSettings.gravityIndex + 1) % GravityModes.length;
+    document.getElementById('gravToggle').innerText = GravityModes[GameSettings.gravityIndex].name;
+}
+
+function toggleControls() {
+    const modes = ["AUTO", "ГЕЙМПАД", "КЛАВА"];
+    let curr = modes.indexOf(document.getElementById('controlToggle').innerText);
+    curr = (curr + 1) % modes.length;
+    document.getElementById('controlToggle').innerText = modes[curr];
+}
+
+function toggleShieldSize() {
+    GameSettings.shieldSizeIndex = (GameSettings.shieldSizeIndex + 1) % ShieldSizeModes.length;
+    document.getElementById('shieldSizeToggle').innerText = ShieldSizeModes[GameSettings.shieldSizeIndex].name;
+}
+
+function toggleShieldFollow() {
+    GameSettings.shieldFollow = !GameSettings.shieldFollow;
+    document.getElementById('shieldFollowToggle').innerText = GameSettings.shieldFollow ? "ДА" : "НЕТ";
+}
+
+function toggleEnemyVar() {
+    GameSettings.enemyVariety = (GameSettings.enemyVariety + 1) % EnemyVarModes.length;
+    document.getElementById('enemyVarToggle').innerText = EnemyVarModes[GameSettings.enemyVariety];
+}
+
+function closeSettings() {
+    document.getElementById('settings-screen').classList.add('hidden');
+    currentScreen = lastScreen;
+    if (currentScreen === 'start') {
+        document.getElementById('start-screen').classList.remove('hidden');
+    } else if (currentScreen === 'gameover') {
+        document.getElementById('game-over-screen').classList.remove('hidden');
+    } else {
+        currentScreen = 'game';
+        if (isPaused) {
+             document.getElementById('pause-overlay').style.display = 'block';
+        }
+    }
+    menuIndex = 0;
+    updateMenuHighlights(getInteractiveElements());
+}
+
+function openSettingsFromOver() {
+    lastScreen = 'gameover';
+    currentScreen = 'settings';
+    document.getElementById('game-over-screen').classList.add('hidden');
+    document.getElementById('settings-screen').classList.remove('hidden');
+    menuIndex = 0;
+    updateMenuHighlights(getInteractiveElements());
+}
+
+document.getElementById('settingsBtn').addEventListener('click', () => {
+    if (isPlaying) {
+        if (!isPaused) togglePause();
+        lastScreen = 'game';
+    } else {
+        if (!document.getElementById('start-screen').classList.contains('hidden')) lastScreen = 'start';
+        else if (!document.getElementById('game-over-screen').classList.contains('hidden')) lastScreen = 'gameover';
+    }
+    
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-over-screen').classList.add('hidden');
+    
+    currentScreen = 'settings';
+    document.getElementById('settings-screen').classList.remove('hidden');
+    menuIndex = 0;
+    updateMenuHighlights(getInteractiveElements());
+});
+
+const AudioEngine = {
+    ctx: null,
+    isPlaying: false,
+    melody: [
+        "E4","B4","E5","B4", "E4","B4","E5","B4", 
+        "C4","G4","C5","G4", "C4","G4","C5","G4",
+        "D4","A4","D5","A4", "D4","A4","D5","A4",
+        "B3","F#4","B4","F#4", "B3","F#4","B4","F#4"
+    ],
+    noteFreqs: {
+        "B3": 246.94, "C4": 261.63, "D4": 293.66, "E4": 329.63, "F#4": 369.99, "G4": 392.00, "A4": 440.00, "B4": 493.88,
+        "C5": 523.25, "D#5": 622.25, "D5": 587.33, "E5": 659.25, "F#5": 739.99, "G5": 783.99, "A5": 880.00, "B5": 987.77
+    },
+    noteIndex: 0,
+    nextNoteTime: 0,
+    tempo: 0.18, 
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    },
+
+    playTone(freq, type, duration, vol = 0.1) {
+        if (!this.ctx || !GameSettings.sound) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+
+    startMusic() {
+        this.init();
+        if (this.isPlaying || !GameSettings.sound) return;
+        this.isPlaying = true;
+        this.noteIndex = 0;
+        this.nextNoteTime = this.ctx.currentTime;
+        this.scheduler();
+    },
+
+    stopMusic() {
+        this.isPlaying = false;
+    },
+
+    scheduler() {
+        if (!this.isPlaying) return;
+        while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
+            this.playNextNote();
+            this.nextNoteTime += this.tempo;
+        }
+        requestAnimationFrame(() => this.scheduler());
+    },
+
+    playNextNote() {
+        const note = this.melody[this.noteIndex];
+        const freq = this.noteFreqs[note];
+        if (freq) {
+            this.playTone(freq, 'square', 0.15, 0.03);
+        }
+        this.noteIndex = (this.noteIndex + 1) % this.melody.length;
+    },
+
+    playShoot() {
+        if(!this.ctx) return;
+        this.playTone(800, 'sawtooth', 0.1, 0.05);
+        setTimeout(() => this.playTone(400, 'square', 0.1, 0.05), 50);
+    },
+
+    playHit() {
+        this.playTone(150, 'square', 0.1, 0.1);
+    },
+
+    playBlock() {
+        this.playTone(1200, 'triangle', 0.1, 0.05);
+    },
+
+    playGameOver() {
+        this.stopMusic();
+        if (!this.ctx || !GameSettings.sound) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(10, this.ctx.currentTime + 1.5);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1.5);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 1.5);
+    }
+};
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const PIXEL_SCALE = 4;
+let GAME_WIDTH, GAME_HEIGHT, centerX, centerY;
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    GAME_WIDTH = Math.ceil(canvas.width / PIXEL_SCALE);
+    GAME_HEIGHT = Math.ceil(canvas.height / PIXEL_SCALE);
+    centerX = GAME_WIDTH / 2;
+    centerY = GAME_HEIGHT / 2;
+    ctx.scale(PIXEL_SCALE, PIXEL_SCALE);
+    ctx.imageSmoothingEnabled = false;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const C_BG = '#c7f0d8';
+const C_FG = '#43523d';
+
+let isPlaying = false;
+let isPaused = false;
+let score = 0;
+let lastTime = 0;
+let spawnTimer = 0;
+let shake = 0;
+let animationFrameId = null; 
+
+let currentScreen = 'start'; 
+let lastScreen = 'start';
+let menuIndex = 0; 
+
+const player = {
+    angle: 0,
+    radius: 12, 
+    lastShot: 0,
+    cooldown: 250
+};
+
+const shield = {
+    angle: Math.PI,
+    dist: 35,
+    width: Math.PI / 2
+};
+
+let pBullets = []; 
+let eBullets = []; 
+let enemies = [];
+let particles = [];
+
+const keys = {};
+let mouseX = 0, mouseY = 0;
+let isMouseDown = false;
+let menuMoveTimer = 0;
+const MENU_DELAY = 150;
+
+window.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    
+    if (e.code === 'KeyX') {
+        if (isPlaying) togglePause();
+    }
+    
+    if (currentScreen !== 'game') {
+        if (e.code === 'ArrowUp' || e.code === 'KeyW') navigateMenu(-1);
+        if (e.code === 'ArrowDown' || e.code === 'KeyS') navigateMenu(1);
+        if (e.code === 'Enter' || e.code === 'Space') executeMenuAction();
+    }
+});
+window.addEventListener('keyup', e => keys[e.code] = false);
+window.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const rawX = e.clientX - rect.left;
+    const rawY = e.clientY - rect.top;
+    mouseX = rawX / PIXEL_SCALE;
+    mouseY = rawY / PIXEL_SCALE;
+});
+window.addEventListener('mousedown', () => isMouseDown = true);
+window.addEventListener('mouseup', () => isMouseDown = false);
+
+function togglePause() {
+    isPaused = !isPaused;
+    const pauseEl = document.getElementById('pause-overlay');
+    if (isPaused) {
+        pauseEl.style.display = 'block';
+        AudioEngine.stopMusic();
+    } else {
+        pauseEl.style.display = 'none';
+        AudioEngine.startMusic();
+        lastTime = performance.now();
+    }
+}
+
+function getInteractiveElements() {
+    if (currentScreen === 'start') return ['btn-start'];
+    if (currentScreen === 'gameover') return ['btn-restart', 'btn-settings-over'];
+    if (currentScreen === 'settings') return ['row-sound', 'row-diff', 'row-grav', 'row-ctrl', 'row-shield-size', 'row-shield-follow', 'row-enemy-var', 'btn-back'];
+    return [];
+}
+
+function navigateMenu(dir) {
+    const ids = getInteractiveElements();
+    if (ids.length === 0) return;
+    
+    menuIndex += dir;
+    if (menuIndex < 0) menuIndex = ids.length - 1;
+    if (menuIndex >= ids.length) menuIndex = 0;
+    
+    updateMenuHighlights(ids);
+}
+
+function updateMenuHighlights(ids) {
+    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    if (ids[menuIndex]) {
+        const el = document.getElementById(ids[menuIndex]);
+        if (el) el.classList.add('selected');
+    }
+}
+
+function executeMenuAction() {
+    const ids = getInteractiveElements();
+    if (!ids[menuIndex]) return;
+    const el = document.getElementById(ids[menuIndex]);
+    
+    if (el) el.click();
+}
+
+function updateControls() {
+    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const gp = gamepads[0]; 
+    const deadzone = 0.3;
+
+    if (currentScreen !== 'game' && gp) {
+        const now = Date.now();
+        if (now - menuMoveTimer > MENU_DELAY) {
+            if (gp.axes[1] < -deadzone) { navigateMenu(-1); menuMoveTimer = now; }
+            if (gp.axes[1] > deadzone) { navigateMenu(1); menuMoveTimer = now; }
+            if (gp.buttons[12] && gp.buttons[12].pressed) { navigateMenu(-1); menuMoveTimer = now; }
+            if (gp.buttons[13] && gp.buttons[13].pressed) { navigateMenu(1); menuMoveTimer = now; }
+        }
+        
+        if (gp.buttons[0].pressed || gp.buttons[9].pressed || gp.buttons[2].pressed) {
+             if (now - menuMoveTimer > MENU_DELAY) {
+                executeMenuAction();
+                menuMoveTimer = now;
+             }
+        }
+    }
+
+    if (!isPlaying || isPaused) return;
+
+    let shootPressed = false;
+
+    let aimX = 0, aimY = 0;
+    
+    if (gp) {
+        if (Math.abs(gp.axes[0]) > deadzone) aimX = gp.axes[0];
+        if (Math.abs(gp.axes[1]) > deadzone) aimY = gp.axes[1];
+        
+        if ((gp.buttons[6] && gp.buttons[6].pressed) || 
+            (gp.buttons[7] && gp.buttons[7].pressed) || 
+            gp.buttons[0].pressed) shootPressed = true;
+    }
+
+    if (keys['KeyA']) aimX = -1;
+    if (keys['KeyD']) aimX = 1;
+    if (keys['KeyW']) aimY = -1;
+    if (keys['KeyS']) aimY = 1;
+
+    if (aimX !== 0 || aimY !== 0) {
+        player.angle = Math.atan2(aimY, aimX);
+    } 
+
+    if (GameSettings.shieldFollow) {
+        shield.angle = player.angle;
+    } else {
+        let shieldX = 0, shieldY = 0;
+
+        if (gp) {
+            if (Math.abs(gp.axes[2]) > deadzone) shieldX = gp.axes[2];
+            if (Math.abs(gp.axes[3]) > deadzone) shieldY = gp.axes[3];
+        }
+
+        if (keys['ArrowLeft']) shieldX = -1;
+        if (keys['ArrowRight']) shieldX = 1;
+        if (keys['ArrowUp']) shieldY = -1;
+        if (keys['ArrowDown']) shieldY = 1;
+
+        if (shieldX !== 0 || shieldY !== 0) {
+            shield.angle = Math.atan2(shieldY, shieldX);
+        }
+    }
+
+    if (keys['Space'] || keys['ControlLeft'] || isMouseDown) shootPressed = true;
+
+    if (shootPressed) {
+        shoot();
+    }
+}
+
+function shoot() {
+    const now = Date.now();
+    if (now - player.lastShot > player.cooldown) {
+        player.lastShot = now;
+        
+        const speed = 2.5;
+        const barrelLen = 16;
+        pBullets.push({
+            x: centerX + Math.cos(player.angle) * barrelLen,
+            y: centerY + Math.sin(player.angle) * barrelLen,
+            vx: Math.cos(player.angle) * speed,
+            vy: Math.sin(player.angle) * speed,
+            life: 120
+        });
+
+        shake = 1.5;
+        AudioEngine.playShoot();
+    }
+}
+
+function startGame() {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+
+    AudioEngine.init();
+    AudioEngine.startMusic();
+
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-over-screen').classList.add('hidden');
+    document.getElementById('settings-screen').classList.add('hidden');
+    document.getElementById('pause-overlay').style.display = 'none';
+
+    currentScreen = 'game';
+    
+    score = 0;
+    document.getElementById('scoreVal').innerText = score;
+    
+    pBullets = [];
+    eBullets = [];
+    enemies = [];
+    particles = [];
+    
+    spawnTimer = 0;
+    shake = 0;
+
+    isPlaying = true;
+    isPaused = false;
+    lastTime = performance.now();
+    
+    loop(lastTime);
+}
+
+function gameOver() {
+    AudioEngine.playGameOver();
+    isPlaying = false;
+    shake = 10;
+    document.getElementById('finalScore').innerText = score;
+    
+    currentScreen = 'gameover';
+    menuIndex = 0; 
+    document.getElementById('game-over-screen').classList.remove('hidden');
+    updateMenuHighlights(getInteractiveElements());
+}
+
+function spawnEnemy() {
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.max(GAME_WIDTH, GAME_HEIGHT) / 1.5 + 20;
+    
+    const settings = DiffParams[GameSettings.difficulty];
+    const variety = GameSettings.enemyVariety; 
+
+    const shooterChance = Math.min(0.4, score * 0.002);
+    
+    let type = 0; 
+    
+    if (variety === 0) {
+        type = 0;
+    } else if (variety === 1) {
+        type = Math.random() < shooterChance ? 1 : 0;
+    } else {
+        const rand = Math.random();
+        if (rand < 0.15 && score > 50) type = 2; 
+        else if (rand < 0.15 + shooterChance) type = 1;
+        else type = 0;
+    }
+    
+    let speed = settings.enemySpeed * (0.9 + Math.random() * 0.2);
+    let hp = 1;
+    
+    if (type === 1) {
+        speed *= 0.7;
+        hp = 2;
+    } else if (type === 2) {
+        speed *= 0.4;
+        hp = 5;
+    }
+
+    enemies.push({
+        x: centerX + Math.cos(angle) * dist,
+        y: centerY + Math.sin(angle) * dist,
+        type: type, 
+        angle: angle + Math.PI, 
+        speed: speed, 
+        hp: hp, 
+        shootTimer: Math.random() * 1000
+    });
+}
+
+function createExplosion(x, y, count = 6, color = C_FG) {
+    for(let i=0; i<count; i++) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            life: 20 + Math.random() * 15,
+            color: color
+        });
+    }
+}
+
+function loop(timestamp) {
+    animationFrameId = requestAnimationFrame(loop);
+
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+    
+    if (dt > 100) return;
+
+    if (isPlaying && !isPaused) {
+        update(dt);
+    } else if (!isPlaying) {
+        if (shake > 0.5) {
+             shake *= 0.9;
+             draw(); 
+        } else if (shake > 0) {
+            shake = 0;
+            draw();
+        }
+        updateControls();
+        return; 
+    }
+    
+    draw();
+}
+
+function update(dt) {
+    updateControls();
+
+    shield.width = ShieldSizeModes[GameSettings.shieldSizeIndex].val;
+
+    if (shake > 0) shake *= 0.9;
+    if (shake < 0.5) shake = 0;
+
+    spawnTimer += dt;
+    const settings = DiffParams[GameSettings.difficulty];
+    let currentSpawnRate = Math.max(300, settings.spawnRate - score * 2);
+    if (GameSettings.enemyVariety === 2) currentSpawnRate *= 0.8;
+
+    if (spawnTimer > currentSpawnRate) {
+        spawnEnemy();
+        spawnTimer = 0;
+    }
+
+    const gravityStr = GravityModes[GameSettings.gravityIndex].val;
+
+    for (let i = pBullets.length - 1; i >= 0; i--) {
+        let b = pBullets[i];
+        
+        if (gravityStr > 0 && enemies.length > 0) {
+            let closest = null;
+            let minDistSq = 140 * 140;
+            
+            for(let e of enemies) {
+                let dx = e.x - b.x;
+                let dy = e.y - b.y;
+                let dSq = dx*dx + dy*dy;
+                if (dSq < minDistSq) {
+                    minDistSq = dSq;
+                    closest = e;
+                }
+            }
+
+            if (closest) {
+                let dx = closest.x - b.x;
+                let dy = closest.y - b.y;
+                let dist = Math.sqrt(minDistSq);
+                if (dist > 0) {
+                    let dirX = dx / dist;
+                    let dirY = dy / dist;
+
+                    b.vx += dirX * gravityStr;
+                    b.vy += dirY * gravityStr;
+
+                    let speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
+                    b.vx = (b.vx / speed) * 2.5;
+                    b.vy = (b.vy / speed) * 2.5;
+                }
+            }
+        }
+
+        b.x += b.vx;
+        b.y += b.vy;
+        b.life--;
+
+        if (b.life <= 0) {
+            pBullets.splice(i, 1);
+            continue;
+        }
+
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            let e = enemies[j];
+            let dx = b.x - e.x;
+            let dy = b.y - e.y;
+            if (dx*dx + dy*dy < (e.type === 2 ? 300 : 144)) { 
+                e.hp--;
+                createExplosion(e.x, e.y, 3);
+                AudioEngine.playHit();
+                
+                pBullets.splice(i, 1);
+                
+                if (e.hp <= 0) {
+                    enemies.splice(j, 1);
+                    score += (e.type === 2 ? 30 : 10);
+                    document.getElementById('scoreVal').innerText = score;
+                    createExplosion(e.x, e.y, 8);
+                    shake = 2;
+                }
+                break; 
+            }
+        }
+    }
+
+    for (let i = eBullets.length - 1; i >= 0; i--) {
+        let eb = eBullets[i];
+        eb.x += eb.vx * (dt/16);
+        eb.y += eb.vy * (dt/16);
+        
+        let dx = eb.x - centerX;
+        let dy = eb.y - centerY;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+
+        let angleToBullet = Math.atan2(dy, dx);
+        let angleDiff = angleToBullet - shield.angle;
+        while (angleDiff <= -Math.PI) angleDiff += Math.PI*2;
+        while (angleDiff > Math.PI) angleDiff -= Math.PI*2;
+
+        if (shield.width > 0 && dist < shield.dist + 5 && dist > shield.dist - 5) {
+            if (Math.abs(angleDiff) < shield.width / 2) {
+                eBullets.splice(i, 1);
+                AudioEngine.playBlock();
+                createExplosion(eb.x, eb.y, 2);
+                continue;
+            }
+        }
+
+        if (dist < 8) {
+            createExplosion(centerX, centerY, 50);
+            gameOver();
+        }
+    }
+
+    enemies.forEach(e => {
+        const dx = centerX - e.x;
+        const dy = centerY - e.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (e.type === 0 || e.type === 2) { 
+            e.x += (dx / dist) * e.speed;
+            e.y += (dy / dist) * e.speed;
+        } else if (e.type === 1) { 
+            if (dist > 60) {
+                e.x += (dx / dist) * e.speed;
+                e.y += (dy / dist) * e.speed;
+            } else {
+                e.shootTimer += dt;
+                if (e.shootTimer > 2000 / (GameSettings.difficulty + 1)) {
+                    e.shootTimer = 0;
+                    eBullets.push({
+                        x: e.x, y: e.y,
+                        vx: (dx / dist) * 1.5,
+                        vy: (dy / dist) * 1.5
+                    });
+                }
+            }
+        }
+
+        let ang = Math.atan2(e.y - centerY, e.x - centerX);
+        let angDiff = ang - shield.angle;
+        while (angDiff <= -Math.PI) angDiff += Math.PI*2;
+        while (angDiff > Math.PI) angDiff -= Math.PI*2;
+
+        if (shield.width > 0 && dist < shield.dist + 6 + (e.type === 2 ? 4 : 0) && dist > shield.dist - 6 - (e.type === 2 ? 4 : 0)) {
+             if (Math.abs(angDiff) < shield.width / 2) {
+                e.hp = 0; 
+                score += (e.type === 2 ? 30 : 10);
+                document.getElementById('scoreVal').innerText = score;
+                AudioEngine.playBlock();
+                createExplosion(e.x, e.y, 4);
+                shake = 3;
+            }
+        }
+
+        if (e.hp <= 0) return; 
+
+        if (dist < 10) {
+            gameOver();
+        }
+    });
+    enemies = enemies.filter(e => e.hp > 0);
+
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+    });
+    particles = particles.filter(p => p.life > 0);
+}
+
+function draw() {
+    ctx.fillStyle = C_BG;
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    let sx = (Math.random() - 0.5) * shake;
+    let sy = (Math.random() - 0.5) * shake;
+    
+    ctx.save();
+    ctx.translate(sx, sy);
+
+    ctx.fillStyle = C_FG;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 6, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(player.angle);
+    ctx.fillStyle = C_FG;
+    
+    ctx.fillRect(-5, -5, 10, 10); 
+    ctx.fillRect(5, -2, 10, 4); 
+    ctx.fillRect(13, -3, 3, 6);
+    ctx.fillStyle = C_BG;
+    ctx.fillRect(-2, -2, 4, 4);
+    
+    ctx.restore();
+
+    if (shield.width > 0) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = C_FG;
+        ctx.lineCap = 'butt'; 
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, shield.dist, shield.angle - shield.width/2, shield.angle + shield.width/2);
+        ctx.stroke();
+
+        const sStart = shield.angle - shield.width/2;
+        const sEnd = shield.angle + shield.width/2;
+        ctx.fillStyle = C_FG;
+        
+        let kx = centerX + Math.cos(sStart) * shield.dist;
+        let ky = centerY + Math.sin(sStart) * shield.dist;
+        ctx.fillRect(kx-2, ky-2, 4, 4);
+
+        kx = centerX + Math.cos(sEnd) * shield.dist;
+        ky = centerY + Math.sin(sEnd) * shield.dist;
+        ctx.fillRect(kx-2, ky-2, 4, 4);
+    }
+
+    ctx.fillStyle = C_FG;
+    pBullets.forEach(b => {
+        ctx.fillRect(Math.floor(b.x)-2, Math.floor(b.y)-2, 4, 4);
+    });
+
+    eBullets.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 3, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = C_BG;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 1, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = C_FG;
+    });
+
+    enemies.forEach(e => {
+        ctx.save();
+        ctx.translate(Math.floor(e.x), Math.floor(e.y));
+        ctx.rotate(e.angle); 
+        
+        if (e.type === 0) {
+            ctx.beginPath();
+            ctx.moveTo(5, 0);
+            ctx.lineTo(-4, 4);
+            ctx.lineTo(-2, 0);
+            ctx.lineTo(-4, -4);
+            ctx.closePath();
+            ctx.fill();
+        } else if (e.type === 1) {
+            ctx.fillRect(-4, -2, 8, 4); 
+            ctx.fillRect(-2, -5, 4, 10); 
+            ctx.fillStyle = C_BG;
+            ctx.fillRect(-1, -1, 2, 2);
+        } else if (e.type === 2) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.lineTo(8 * Math.cos(i * Math.PI / 3), 8 * Math.sin(i * Math.PI / 3));
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = C_BG;
+            ctx.fillRect(-3, -3, 6, 6);
+        }
+        ctx.restore();
+        ctx.fillStyle = C_FG; 
+    });
+
+    particles.forEach(p => {
+        ctx.fillStyle = p.color || C_FG;
+        let s = Math.random() > 0.5 ? 2 : 1;
+        ctx.fillRect(Math.floor(p.x), Math.floor(p.y), s, s);
+    });
+    
+    ctx.restore();
+}
+
+updateMenuHighlights(getInteractiveElements());
+
+</script>
+</body>
+</html>
