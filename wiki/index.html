@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUBBY GAMES WIKI</title>
+    <link rel="icon" href="../icon.svg" type="image/svg+xml">
+    <style>
+        @font-face { font-family: 'KBF'; src: url('../Kbf Ru.ttf') format('truetype'); }
+        @font-face { font-family: 'KBF'; src: url('../Kbf En.ttf') format('truetype'); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'KBF', sans-serif; }
+
+        @keyframes moveBG { 0% { background-position: 0 0; } 100% { background-position: 100% 100%; } }
+
+        body {
+            background: #000; color: #fff; padding: 40px 20px;
+            background-image: url("../bbg.png"); background-repeat: repeat; background-size: 100px;
+            animation: moveBG 30s linear infinite alternate; line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        body::after { 
+            content: ""; position: fixed; inset: 0; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)); 
+            z-index: -1; 
+        }
+
+        .hub-container { max-width: 1000px; width: 100%; text-align: center; }
+        
+        h1 { 
+            font-size: 56px; 
+            margin-bottom: 40px; 
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .grid-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .page-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            transition: 0.3s;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            text-align: center;
+            min-height: 80px;
+        }
+
+        .page-card:hover {
+            border-color: #4db8ff;
+            background: rgba(77, 184, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(77, 184, 255, 0.3);
+            text-shadow: 0 0 10px #4db8ff;
+        }
+
+        .featured {
+            grid-column: 1 / -1;
+            font-size: 28px;
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        .footer { margin-top: 50px; opacity: 0.5; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="hub-container">
+        <h1>KUBBY GAMES WIKI</h1>
+
+        <div class="grid-menu">
+            <a href="Main Page.html" class="page-card featured">Страницы</a>
+
+            <a href="Kubby.html" class="page-card">Kubby</a>
+            <a href="Pixel%20kubby.html" class="page-card">Pixel Kubby</a>
+            <a href="Виндус.html" class="page-card">Виндус</a>
+            <a href="Жирба.html" class="page-card">Жирба</a>
+            <a href="Иббук.html" class="page-card">Иббук</a>
+            <a href="Козёл.html" class="page-card">Козёл</a>
+            <a href="Кратби.html" class="page-card">Кратби</a>
+            <a href="Кубби.html" class="page-card">Кубби</a>
+            <a href="Кубонавт.html" class="page-card">Кубонавт</a>
+            <a href="Лимпус.html" class="page-card">Лимпус</a>
+            <a href="Ночной%20кубби%20-%20ночной%20фейк%20кубби.html" class="page-card">Ночной кубби</a>
+            <a href="Пиздей.html" class="page-card">Пиздей</a>
+            <a href="ТванобуК.html" class="page-card">ТванобуК</a>
+            <a href="Фейк%20кубби.html" class="page-card">Фейк кубби</a>
+            <a href="Fan-arts.html" class="page-card">Fan-arts</a>
+            <a href="Алфавит%20кубби%20(ИИ).html" class="page-card">Алфавит кубби (ИИ)</a>
+            <a href="Шаблоны.html" class="page-card">Шаблоны</a>
+            <a href="Экспериментальная.html" class="page-card">Экспериментальная</a>
+        </div>
+
+        <div class="footer">
+            Страницы сделаны на основе fandom wiki в стиле сайта
+        </div>
+    </div>
+
+</body>
+</html>
