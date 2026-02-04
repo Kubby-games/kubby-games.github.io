@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кубонавт - KUBBY GAMES WIKI</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<style>
+
+@font-face { font-family: 'KBF'; src: url('../Kbf Ru.ttf') format('truetype'); }
+@font-face { font-family: 'KBF'; src: url('../Kbf En.ttf') format('truetype'); }
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'KBF', sans-serif; }
+
+
+@keyframes moveBG { 0% { background-position: 0 0; } 100% { background-position: 100% 100%; } }
+
+body {
+    background: #000; color: #fff; padding: 40px 20px;
+    background-image: url("../bbg.png"); background-repeat: repeat; background-size: 100px;
+    animation: moveBG 30s linear infinite alternate; line-height: 1.6;
+}
+body::after { 
+    content: ""; position: fixed; inset: 0; 
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)); 
+    z-index: -1; 
+}
+
+.wiki-container { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 60px; align-items: flex-start; }
+.wiki-article { flex: 2; min-width: 300px; }
+.wiki-sidebar { flex: 1; min-width: 300px; max-width: 400px; }
+
+
+h1 { font-size: 42px; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+h2 { font-size: 32px; margin-top: 40px; margin-bottom: 20px; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+h3 { font-size: 24px; margin-top: 25px; color: #ddd; }
+p { font-size: 18px; margin-bottom: 15px; color: rgba(255,255,255,0.9); }
+ul, ol { margin-left: 25px; margin-bottom: 20px; }
+li { margin-bottom: 8px; }
+
+
+.glass-panel {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    padding: 0; 
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    overflow: hidden;
+    margin-bottom: 25px;
+    transition: 0.2s;
+}
+.glass-panel:hover {
+    border-color: #fff;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.infobox-header {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.infobox-image { 
+    width: 100%; 
+    height: auto; 
+    display: block; 
+    padding: 0;
+}
+
+.infobox-row { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 12px 15px; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+    font-size: 16px; 
+}
+.infobox-row:last-child { border-bottom: none; }
+.infobox-label { font-weight: bold; color: #ccc; width: 45%; }
+.infobox-data { text-align: right; color: #fff; width: 55%; word-wrap: break-word; }
+
+
+.gallery { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; }
+.gallery-image-wrapper { 
+    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+    border-radius: 8px; overflow: hidden; padding: 5px; 
+}
+img { max-width: 100%; height: auto; border-radius: 8px; }
+a { color: #4db8ff; text-decoration: none; }
+a:hover { color: #fff; text-shadow: 0 0 5px #4db8ff; }
+
+
+aside.portable-infobox, .wds-global-footer, .mw-editsection { display: none !important; } 
+</style>
+</head>
+<body>
+    <div class="wiki-container">
+        <article class="wiki-article">
+            <h1>Кубонавт</h1>
+            <div class="mw-content-ltr mw-parser-output" dir="ltr" lang="en"><p>
+
+</p><p><br/>
+</p>
+<table align="center" style="background: #FF0000; border:1px solid #FFFF0000; border-radius:10px; width: 80%">
+<tbody><tr>
+<td style="width: 60px; padding: 1px 0px 1px 0.5em; text-align: center;"><span class="mw-default-size" typeof="mw:File"><a class="mw-file-description image" href="https://static.wikia.nocookie.net/kubby-big-adventure/images/7/72/%D0%9D%D0%B5_%D0%B3%D0%BE%D1%82%D0%BE%D0%B2%D0%B0.png/revision/latest?cb=20251202094500"><img alt="Не готова" class="mw-file-element lazyload" data-image-key="%D0%9D%D0%B5_%D0%B3%D0%BE%D1%82%D0%BE%D0%B2%D0%B0.png" data-image-name="Не готова.png" data-relevant="0" decoding="async" src="images/Не_готова.png"/></a></span>
+</td>
+<td style="padding: 0.1em 0.3em; color:#FFFFFF;"><font size="4"><b>"Так стоп мне кажется или чего-то тут не хватает?"</b></font><div class="font-size: smaller; margin-top:0.5em; margin-left:0.8em;" style="font-size:14px;">эта страница ещё не готова но вы можете помочь её доработать!</div>
+</td></tr></tbody></table>
+<table align="center" style="background: #0FFF00; border:1px solid #00FFFF00; border-radius:10px; width: 80%">
+<tbody><tr>
+<td style="width: 60px; padding: 1px 0px 1px 0.5em; text-align: center;"><span class="mw-default-size" typeof="mw:File"><a class="mw-file-description image" href="https://static.wikia.nocookie.net/kubby-big-adventure/images/a/a4/%D0%91%D0%BB%D1%8F%D1%8F.png/revision/latest?cb=20251214093938"><img alt="Бляя" class="mw-file-element lazyload" data-image-key="%D0%91%D0%BB%D1%8F%D1%8F.png" data-image-name="Бляя.png" data-relevant="0" decoding="async" src="images/Бляя.png"/></a></span>
+</td>
+<td style="padding: 0.1em 0.3em; color:#FFFFFF;"><font size="4"><b>"бляяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяяя...</b></font><div class="font-size: smaller; margin-top:0.5em; margin-left:0.8em;" style="font-size:14px;">эта страница может иметь нецензурные выражения!</div>
+</td></tr></tbody></table>
+<table align="center" style="background: #00FFFF; border:1px solid #FFFFF0FF; border-radius:10px; width: 80%">
+<tbody><tr>
+<td style="width: 60px; padding: 1px 0px 1px 0.5em; text-align: center;"><span class="mw-default-size" typeof="mw:File"><a class="mw-file-description image" href="https://static.wikia.nocookie.net/kubby-big-adventure/images/0/00/%D0%96%D0%B5%D0%BD%D1%89%D0%B8%D0%BD%D0%B0.png/revision/latest?cb=20260110081537"><img alt="Женщина" class="mw-file-element lazyload" data-image-key="%D0%96%D0%B5%D0%BD%D1%89%D0%B8%D0%BD%D0%B0.png" data-image-name="Женщина.png" data-relevant="0" decoding="async" src="images/Женщина.png"/></a></span>
+</td>
+<td style="padding: 0.1em 0.3em; color:#FFFFFF;"><font size="4"><b>Ну да я женщина а что?</b></font><div class="font-size: smaller; margin-top:0.5em; margin-left:0.8em;" style="font-size:14px;">Кубонавт - женщина!</div>
+</td></tr></tbody></table>
+
+<h3><span id=".D0.92.D0.90.D0.96.D0.9D.D0.9E.21.21.21"></span><span class="mw-headline" id="ВАЖНО!!!">ВАЖНО!!!</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a aria-label="Sign in to edit" class="mw-editsection-visualeditor" data-action="edit-section" data-testid="log-in-edit-section" data-tracking-label="log-in-edit-section" href="https://auth.fandom.com/signin?redirect=https%3A%2F%2Fkubby-big-adventure.fandom.com%2Fwiki%2F%25D0%259A%25D1%2583%25D0%25B1%25D0%25BE%25D0%25BD%25D0%25B0%25D0%25B2%25D1%2582%3Fveaction%3Dedit%26section%3D1&amp;uselang=en" title="Sign in to edit"><svg aria-hidden="true" class="wds-icon wds-icon-tiny" focusable="false"><use xlink:href="#wds-icons-pencil-tiny"></use></svg></a><span class="mw-editsection-bracket">]</span></span></h3>
+<p>Кубонавт не является женщиной но сообщество считает его женщиной 📵
+</p>
+<h2><span id=".E1.85.A0.E1.85.A0.E1.85.A0"></span><span class="mw-headline" id="ᅠᅠᅠ">ᅠᅠᅠ</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a aria-label="Sign in to edit" class="mw-editsection-visualeditor" data-action="edit-section" data-testid="log-in-edit-section" data-tracking-label="log-in-edit-section" href="https://auth.fandom.com/signin?redirect=https%3A%2F%2Fkubby-big-adventure.fandom.com%2Fwiki%2F%25D0%259A%25D1%2583%25D0%25B1%25D0%25BE%25D0%25BD%25D0%25B0%25D0%25B2%25D1%2582%3Fveaction%3Dedit%26section%3D2&amp;uselang=en" title="Sign in to edit"><svg aria-hidden="true" class="wds-icon wds-icon-tiny" focusable="false"><use xlink:href="#wds-icons-pencil-tiny"></use></svg></a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>Кубонавт - весёлый добрый лаймовый куб (который как и остальные похож на прямоугольник нахуй)
+</p>
+<h2><span id=".D0.A5.D0.B0.D1.80.D0.B0.D0.BA.D1.82.D0.B5.D1.80"></span><span class="mw-headline" id="Характер">Характер</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a aria-label="Sign in to edit" class="mw-editsection-visualeditor" data-action="edit-section" data-testid="log-in-edit-section" data-tracking-label="log-in-edit-section" href="https://auth.fandom.com/signin?redirect=https%3A%2F%2Fkubby-big-adventure.fandom.com%2Fwiki%2F%25D0%259A%25D1%2583%25D0%25B1%25D0%25BE%25D0%25BD%25D0%25B0%25D0%25B2%25D1%2582%3Fveaction%3Dedit%26section%3D3&amp;uselang=en" title="Sign in to edit"><svg aria-hidden="true" class="wds-icon wds-icon-tiny" focusable="false"><use xlink:href="#wds-icons-pencil-tiny"></use></svg></a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>Очень добрый и улыбчивый куб который умеет летать (охереть он летает нахуй)
+</p><p>Не любит крутби (думаю вы блять уже знаете почему)  
+</p><p>Не знает что такое табличка (он блять её воспринимает как молоток, топор, ?) 
+</p><p>У него иногда проблемы с памятью
+</p>
+<h2><span id=".D0.9F.D0.BE.D1.8F.D0.B2.D0.BB.D0.B5.D0.BD.D0.B8.D1.8F"></span><span class="mw-headline" id="Появления">Появления</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a aria-label="Sign in to edit" class="mw-editsection-visualeditor" data-action="edit-section" data-testid="log-in-edit-section" data-tracking-label="log-in-edit-section" href="https://auth.fandom.com/signin?redirect=https%3A%2F%2Fkubby-big-adventure.fandom.com%2Fwiki%2F%25D0%259A%25D1%2583%25D0%25B1%25D0%25BE%25D0%25BD%25D0%25B0%25D0%25B2%25D1%2582%3Fveaction%3Dedit%26section%3D4&amp;uselang=en" title="Sign in to edit"><svg aria-hidden="true" class="wds-icon wds-icon-tiny" focusable="false"><use xlink:href="#wds-icons-pencil-tiny"></use></svg></a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>T.A.O.B.K
+</p><p>T.A.O.B.K REMAKE
+</p>
+<h2><span id=".D0.93.D0.B0.D0.BB.D0.B5.D1.80.D0.B5.D1.8F"></span><span class="mw-headline" id="Галерея">Галерея</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a aria-label="Sign in to edit" class="mw-editsection-visualeditor" data-action="edit-section" data-testid="log-in-edit-section" data-tracking-label="log-in-edit-section" href="https://auth.fandom.com/signin?redirect=https%3A%2F%2Fkubby-big-adventure.fandom.com%2Fwiki%2F%25D0%259A%25D1%2583%25D0%25B1%25D0%25BE%25D0%25BD%25D0%25B0%25D0%25B2%25D1%2582%3Fveaction%3Dedit%26section%3D5&amp;uselang=en" title="Sign in to edit"><svg aria-hidden="true" class="wds-icon wds-icon-tiny" focusable="false"><use xlink:href="#wds-icons-pencil-tiny"></use></svg></a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="wikia-gallery wikia-gallery-caption-below wikia-gallery-position-left wikia-gallery-spacing-medium wikia-gallery-border-small wikia-gallery-captions-left wikia-gallery-caption-size-medium" data-seq-no="0" hash="399cae4eae05008343e8ff0f89133d84" id="gallery-0"><div class="wikia-gallery-caption"></div><div class="wikia-gallery-item" style="width:187px; "><div class="thumb" style="height:187px;"><div class="gallery-image-wrapper accent" id="-------------jpg" style="position: relative; height:160px; width:185px; top:12.5px;"><a class="image lightbox" href="/wiki/File:%D0%9A%D1%82%D0%B0%D0%BE%D0%B1%D0%BA.jpg" style="height:160px; width:185px;" title="Ктаобк.jpg (46 KB)"><img alt="кубонавт в T.A.O.B.K" class="thumbimage lazyload" data-caption="кубонавт в T.A.O.B.K" data-image-key="%D0%9A%D1%82%D0%B0%D0%BE%D0%B1%D0%BA.jpg" data-image-name="Ктаобк.jpg" data-relevant="1" src="images/Ктаобк.jpg" style="" title="Ктаобк.jpg (46 KB)"/></a></div></div><div class="lightbox-caption" style="width:185px;">кубонавт в T.A.O.B.K</div></div><div class="wikia-gallery-item" style="width:187px; "><div class="thumb" style="height:187px;"><div class="gallery-image-wrapper accent" id="-------png" style="position: relative; height:183px; width:185px; top:1px;"><a class="image lightbox" href="/wiki/File:%D0%91%D0%BB%D1%8F.png" style="height:183px; width:185px;" title="Бля.png (180 KB)"><img alt="кубонавт в шаблоне МАТЫ!!!" class="thumbimage lazyload" data-caption="кубонавт в шаблоне МАТЫ!!!" data-image-key="%D0%91%D0%BB%D1%8F.png" data-image-name="Бля.png" data-relevant="1" src="images/Бля.png" style="" title="Бля.png (180 KB)"/></a></div></div><div class="lightbox-caption" style="width:185px;">кубонавт в шаблоне МАТЫ!!!</div></div><div class="wikia-gallery-item" style="width:187px; "><div class="thumb" style="height:187px;"><div class="gallery-image-wrapper accent" id="-----------png" style="position: relative; height:185px; width:185px;"><a class="image lightbox" href="/wiki/File:%D0%A4%D0%B0%D0%BD%D0%BE%D0%BD.png" style="height:185px; width:185px;" title="Фанон.png (21 KB)"><img alt="Какой-то кубонавт" class="thumbimage lazyload" data-caption="Какой-то кубонавт" data-image-key="%D0%A4%D0%B0%D0%BD%D0%BE%D0%BD.png" data-image-name="Фанон.png" data-relevant="1" src="images/Фанон.png" style="" title="Фанон.png (21 KB)"/></a></div></div><div class="lightbox-caption" style="width:185px;">Какой-то кубонавт</div></div><div class="wikia-gallery-item" style="width:187px; "><div class="thumb" style="height:187px;"><div class="gallery-image-wrapper accent" id="----------_---------------png" style="position: relative; height:185px; width:185px;"><a class="image lightbox" href="/wiki/File:%D0%A4%D0%90%D0%9D%D0%9E%D0%9D_%D0%96%D0%95%D0%9D%D0%A9%D0%98%D0%9D%D0%90.png" style="height:185px; width:185px;" title="ФАНОН ЖЕНЩИНА.png (38 KB)"><img alt="тоже самое но ЖЕНЩИНА" class="thumbimage lazyload" data-caption="тоже самое но ЖЕНЩИНА" data-image-key="%D0%A4%D0%90%D0%9D%D0%9E%D0%9D_%D0%96%D0%95%D0%9D%D0%A9%D0%98%D0%9D%D0%90.png" data-image-name="ФАНОН ЖЕНЩИНА.png" data-relevant="1" src="images/ФАНОН_ЖЕНЩИНА.png" style="" title="ФАНОН ЖЕНЩИНА.png (38 KB)"/></a></div></div><div class="lightbox-caption" style="width:185px;">тоже самое но ЖЕНЩИНА</div></div><div class="wikia-gallery-item" style="width:187px; "><div class="thumb" style="height:187px;"><div class="gallery-image-wrapper accent" id="------_-------jpg" style="position: relative; height:136px; width:185px; top:24.5px;"><a class="image lightbox" href="/wiki/File:%D0%9E%D0%BB%D0%B4_%D0%BA%D1%83%D0%B1.jpg" style="height:136px; width:185px;" title="Олд куб.jpg (24 KB)"><img alt="кубонавт в T.A.O.B.K (устаревший)" class="thumbimage lazyload" data-caption="кубонавт в T.A.O.B.K (устаревший)" data-image-key="%D0%9E%D0%BB%D0%B4_%D0%BA%D1%83%D0%B1.jpg" data-image-name="Олд куб.jpg" data-relevant="1" src="images/Олд_куб.jpg" style="" title="Олд куб.jpg (24 KB)"/></a></div></div><div class="lightbox-caption" style="width:185px;">кубонавт в T.A.O.B.K (устаревший)</div></div></div>
+<!-- 
+NewPP limit report
+Cached time: 20260204160035
+Cache expiry: 2592000
+Reduced expiry: false
+Complications: [show‐toc]
+CPU time usage: 0.026 seconds
+Real time usage: 0.034 seconds
+Preprocessor visited node count: 78/1000000
+Post‐expand include size: 1655/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 4/100
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 8309/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%   18.083      1 -total
+ 43.98%    7.953      1 Template:Куб
+ 28.74%    5.197      1 Template:Plug
+ 13.73%    2.483      1 Template:Женщина
+ 11.82%    2.137      1 Template:Маты
+-->
+<!-- Saved in parser cache with key 1.43.1_prod_kubbybigadventure:pcache:idhash:171-0!sseVary=RegularPage!FandomDesktop!LegacyGalleries and timestamp 20260204160035 and revision id 450. Rendering was triggered because: page-view
+ -->
+</div>
+        </article>
+        <aside class="wiki-sidebar">
+            <div class="glass-panel infobox"><div class="infobox-header">Кубонавт</div>
+<img src="images/Кубонавт.png" class="infobox-image" alt="Кубонавт">
+
+            <div class="infobox-row">
+                <span class="infobox-label">Характер</span>
+                <span class="infobox-data">Добрый</span>
+            </div>
+            
+
+            <div class="infobox-row">
+                <span class="infobox-label">Цель</span>
+                <span class="infobox-data">Спасти кубби (в T.A.O.B.K)</span>
+            </div>
+            
+
+            <div class="infobox-row">
+                <span class="infobox-label">Враги</span>
+                <span class="infobox-data">Крутби (в TAOBK)</span>
+            </div>
+            
+
+            <div class="infobox-row">
+                <span class="infobox-label">Друзья</span>
+                <span class="infobox-data">Кубби (брат в TAOBK)иббуК</span>
+            </div>
+            
+</div>
+        </aside>
+    </div>
+</body>
+</html>
